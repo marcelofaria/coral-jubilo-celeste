@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+    <head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+        <title>Coral Júbilo Celeste</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="../css/index.css">
+    </head>
+    <body>
+        <div class=container>
+            <h3>Buscar Hinos no Arquivo Digital</h3>
+            <img class="style" src="../assets/marius-masalar.jpg">
+            <label for="busca">Buscar por:</label>
+            <select class="busca" id="busca">
+                <option value="name">Nome</option>
+                <option value="composer">Compositor, letrista, ...</option>
+                <option value="lyrics">Letra</option>
+            </select>
+            <input type="text" id="input-field-search" placeholder="Busca por Título do Hino">
+            <button id="search-button">
+                <img class="ico" src="../assets/search_icon.png">
+                Buscar
+            </button>
+            <p id="p"></p>
+            <ul id="sheets-search">        
+            </ul>
+        </div>
+        <script src="../js/search.js" type="module"></script>
+        <script src="../js/index.js" type="module"></script>
+    </body>
+</html>
