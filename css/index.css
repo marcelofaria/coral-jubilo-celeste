@@ -42,7 +42,19 @@ input {
     color: black;
     background-color: floralwhite;
     border: 0;
-    padding: 15px;
+    padding: 5px;
+    border-radius: 8px;
+    font-size: 20 px;
+    text-align: center;
+    margin: 5px 0;
+}
+
+button.attachment {
+    font-family: 'Nunito', sans-serif;
+    color: black;
+    background-color: gray;
+    border: 0;
+    padding: 5px;
     border-radius: 8px;
     font-size: 20 px;
     text-align: center;

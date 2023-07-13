@@ -1,6 +1,6 @@
-import { initializeApp } from "firebase/app"
-import { getDatabase, ref} from "firebase/firestore/lite"
-//import { collection, query, where } from "firebase/firestore/lite";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"
+import { getDatabase, ref, onValue} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"
+/* import { collection, query,  } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js" */
 
 const appSettings = {
     databaseURL: "https://coral-1501e-default-rtdb.firebaseio.com/"
@@ -9,7 +9,24 @@ const appSettings = {
 const app = initializeApp(appSettings)
 const database = getDatabase(app)
 const sheetsInBD = ref(database, "sheets")
-//const sheetsInBDCol = collection(database, "sheets");
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+/* const firebaseConfig = {
+  apiKey: "AIzaSyA3dRIlz2oYMs4yNf9efmhDjJ-57m8Hqhs",
+  authDomain: "coral-1501e.firebaseapp.com",
+  projectId: "coral-1501e",
+  storageBucket: "coral-1501e.appspot.com",
+  messagingSenderId: "173631824401",
+  appId: "1:173631824401:web:858b58838fa28428d3c7b0",
+  measurementId: "G-1JN4F7C6JC"
+};
+
+const application = initializeApp(firebaseConfig)
+
+const db = getFirestore(application);
+//console.log(db)
+const sheetsInBDCol = collection(db, "sheets"); */
 
 //Buscar Hinos
 const inputFieldSearchEl = document.getElementById("input-field-search")
@@ -18,29 +35,17 @@ const textParagraphEL = document.getElementById("p")
 const buscaComboEl = document.getElementById("busca")
 const sheetsEl = document.getElementById("sheets-search")
 
-//const q = query(sheetsInBDCol, where("composer", "==", "Jayme"))
-
-//console.log(q)
-
-/* onValue(sheetsInBD, function(snapshot){
-    snapshot = snapshot.child('sheets').equalTo('John Doe').on
-    let sheetsArray = Object.values(snapshot.val())
-    for (let i = 0; i < sheetsArray.length; i++) {
-        let currentSheet = sheetsArray[i]
-        addFoundSheets(currentSheet)
-    }
-}) */
-
-
-//Buscar Hinos
-/* searchButtonEl.addEventListener("click", function(){
-    let inputValue = inputFieldSearchEl.value
-    
-    //push(sheetsInBD, inputValue)
-    //console.log(inputValue + " adicionado no banco de dados")
-    addSheetToFront(inputFieldNameEl.value)
-    clearInputField()
-}) */
+searchButtonEl.addEventListener("click", function(){
+    onValue(sheetsInBD, function(snapshot){
+        let sheetsArray = Object.values(snapshot.val())
+        for (let i = 0; i < sheetsArray.length; i++) {
+            let currentSheet = sheetsArray[i]
+            console.log(currentSheet)
+            if(currentSheet.name == inputFieldSearchEl.value)
+                addFoundSheets(currentSheet.name)
+        }
+    })
+})
 
 buscaComboEl.addEventListener("change", function(){
     switch (buscaComboEl.value) {
@@ -52,6 +57,9 @@ buscaComboEl.addEventListener("change", function(){
         break;
     case "lyrics":
         inputFieldSearchEl.placeholder = "Busca por Estrofe ou Côro"
+        break;
+        case "category":
+        inputFieldSearchEl.placeholder = "Busca por Categoria"
         break;
     default:
         console.log(`Err`);

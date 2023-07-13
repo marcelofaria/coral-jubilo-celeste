@@ -14,13 +14,16 @@ const sheetsInBD = ref(database, "sheets")
 const inputFieldNameEl = document.getElementById("input-field-name")
 const inputFieldComposerEl = document.getElementById("input-field-composer")
 const inputFieldLyricsEl = document.getElementById("input-field-lyrics")
-const addButtonEl = document.getElementById("add-button")
+const inputFieldCategoryEl = document.getElementById("input-field-category")
+const addButtonEl = document.getElementById("add-button") 
+const addFileEl = document.getElementById("add-file")
 const sheetsEl = document.getElementById("sheets")
 
 //Adicionar Hinos
+        
 addButtonEl.addEventListener("click", function(){
-    let inputValue = {"name" : inputFieldNameEl.value, "composer" : inputFieldComposerEl.value, "lyrics" : inputFieldLyricsEl.value}
-    
+    let inputValue = {"name" : inputFieldNameEl.value, "composer" : inputFieldComposerEl.value, "lyrics" : inputFieldLyricsEl.value, "category": inputFieldCategoryEl.value}
+        
     push(sheetsInBD, inputValue)
     console.log(inputValue + " adicionado no banco de dados")
     addSheetToFront(inputFieldNameEl.value)
@@ -31,9 +34,21 @@ export function clearInputField(){
     inputFieldNameEl.value = ""
     inputFieldComposerEl.value = ""
     inputFieldLyricsEl.value = ""
+    inputFieldCategoryEl.value = ""
 }
 
 export function addSheetToFront(inputValue){
     sheetsEl.innerHTML += `<li>${inputValue}</li>`    
 }
 
+addFileEl.addEventListener("click", function importData() {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = _ => {
+    // you can use this method to get file and perform respective operations
+    let files = Array.from(input.files);
+              
+    };
+  input.click();
+  
+})
