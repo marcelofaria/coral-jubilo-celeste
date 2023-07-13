@@ -37,6 +37,29 @@ label {
      text-align: center;   
 }
 
+#input-file {
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+}
+
+label.file {
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    color: black;
+    background-color: gray;
+    border: 0;
+    padding: 5px;
+    border-radius: 8px;
+    font-size: 20 px;
+    text-align: center;
+    margin: 10px 0;
+}
+
+label.file:active{
+    background-color: floralwhite;  
+}
+
 input {
     font-family: 'Nunito', sans-serif;
     color: black;
@@ -49,19 +72,8 @@ input {
     margin: 5px 0;
 }
 
-button.attachment {
-    font-family: 'Nunito', sans-serif;
-    color: black;
-    background-color: gray;
-    border: 0;
-    padding: 5px;
-    border-radius: 8px;
-    font-size: 20 px;
-    text-align: center;
-    margin: 10px 0;
-}
-
 button {
+    cursor: pointer;
     font-family: 'Nunito', sans-serif;
     color: black;
     background-color: gray;
@@ -71,6 +83,10 @@ button {
     font-size: 20 px;
     text-align: center;
     margin: 10px 0;
+}
+
+button:active{
+    background-color: floralwhite;  
 }
 
 select{

@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"
 import { getDatabase, ref, onValue} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"
-/* import { collection, query,  } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js" */
+/* import { collection, query } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js" */
 
 const appSettings = {
     databaseURL: "https://coral-1501e-default-rtdb.firebaseio.com/"
@@ -36,13 +36,32 @@ const buscaComboEl = document.getElementById("busca")
 const sheetsEl = document.getElementById("sheets-search")
 
 searchButtonEl.addEventListener("click", function(){
+    clearInputFieldSearch()
     onValue(sheetsInBD, function(snapshot){
         let sheetsArray = Object.values(snapshot.val())
         for (let i = 0; i < sheetsArray.length; i++) {
             let currentSheet = sheetsArray[i]
-            console.log(currentSheet)
-            if(currentSheet.name == inputFieldSearchEl.value)
-                addFoundSheets(currentSheet.name)
+            console.log(currentSheet)            
+            switch (buscaComboEl.value) {
+                case "name":
+                    if(currentSheet.name.toUpperCase().includes(inputFieldSearchEl.value.toUpperCase()))
+                        addFoundSheets(currentSheet.name)
+                    break;
+                case "composer":
+                    if(currentSheet.composer.toUpperCase().includes(inputFieldSearchEl.value.toUpperCase()))
+                        addFoundSheets(currentSheet.name)
+                    break;
+                case "lyrics":
+                    if(currentSheet.lyrics.toUpperCase().includes(inputFieldSearchEl.value.toUpperCase()))
+                        addFoundSheets(currentSheet.name)
+                    break;
+                    case "category":
+                    if(currentSheet.category.toUpperCase().includes(inputFieldSearchEl.value.toUpperCase()))
+                        addFoundSheets(currentSheet.name)
+                    break;
+                default:
+                    console.log(`Err`);
+                }
         }
     })
 })
@@ -68,7 +87,8 @@ buscaComboEl.addEventListener("change", function(){
 
 
 export function clearInputFieldSearch(){
-    inputFieldSearchEl.value = ""
+    //inputFieldSearchEl.value = ""
+    sheetsEl.innerHTML = ""
 }
 
 export function addFoundSheets(inputValue){
