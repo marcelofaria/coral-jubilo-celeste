@@ -7,7 +7,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="../css/index.css">
     </head>
-    <body>
+    <body id="body">
         <div class=container>
             <h3>Buscar Hinos no Arquivo Digital</h3>
             <img class="style" src="../assets/marius-masalar.jpg">
@@ -18,7 +18,7 @@
                 <option value="lyrics">Letra</option>
                 <option value="category">Categorias</option>
             </select>
-            <input type="text" id="input-field-search" placeholder="Busca por Título do Hino">
+            <input type="text" id="input-field-search" placeholder="Busca por Título do Hino" autocomplete="off">
             <button id="search-button">
                 <img class="ico" src="../assets/search_icon.png">
                 Buscar
@@ -28,6 +28,5 @@
             </ul>
         </div>
         <script src="../js/search.js" type="module"></script>
-        <script src="../js/index.js" type="module"></script>
     </body>
 </html>

@@ -9,8 +9,8 @@ const appSettings = {
 
 const app = initializeApp(appSettings)
 const database = getDatabase(app)
+const storage = getStorage(app);
 const sheetsInBD = ref(database, "sheets")
-const storage = getStorage();
 
 //console.log(app)
 //Adicionar Hinos
@@ -18,7 +18,9 @@ const inputFieldNameEl = document.getElementById("input-field-name")
 const inputFieldComposerEl = document.getElementById("input-field-composer")
 const inputFieldLyricsEl = document.getElementById("input-field-lyrics")
 const inputFieldCategoryEl = document.getElementById("input-field-category")
+
 const addButtonEl = document.getElementById("add-button") 
+
 const addFileEl = document.getElementById("input-file")
 const sheetsEl = document.getElementById("sheets")
 const fileProgressEl = document.getElementById("file-progress")
@@ -28,7 +30,7 @@ addFileEl.onchange = () => {
     let selectedFile = addFileEl.files[0];
     console.log(selectedFile);
     try {
-        uploadFile(inputFieldNameEl.value, selectedFile) 
+        uploadFile(inputFieldNameEl.value.trim().replace(" ","").normalize("NFD").replace(/[\u0300-\u036f]/g, ""), selectedFile) 
      }
      catch (e) {
         // declarações para manipular quaisquer exceções
@@ -60,7 +62,7 @@ function clearInputField(){
 
 function addSheetToFront(inputValue){
     paragraphEl.innerHTML = "Hinos adicionados Recentemente:"
-    sheetsEl.innerHTML += `<li>${inputValue}</li>`    
+    sheetsEl.innerHTML += `<li>${inputValue}</li>`
 }
 
 function uploadFile(fileName, file) {

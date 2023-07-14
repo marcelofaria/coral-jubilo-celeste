@@ -1,39 +1,29 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"
 import { getDatabase, ref, onValue} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"
-/* import { collection, query } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js" */
+import { getStorage, ref as sRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
 
 const appSettings = {
-    databaseURL: "https://coral-1501e-default-rtdb.firebaseio.com/"
+    databaseURL: "https://coral-1501e-default-rtdb.firebaseio.com/",
+    storageBucket:"gs://coral-1501e.appspot.com"
 }
 
 const app = initializeApp(appSettings)
 const database = getDatabase(app)
+const storage = getStorage();
 const sheetsInBD = ref(database, "sheets")
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-/* const firebaseConfig = {
-  apiKey: "AIzaSyA3dRIlz2oYMs4yNf9efmhDjJ-57m8Hqhs",
-  authDomain: "coral-1501e.firebaseapp.com",
-  projectId: "coral-1501e",
-  storageBucket: "coral-1501e.appspot.com",
-  messagingSenderId: "173631824401",
-  appId: "1:173631824401:web:858b58838fa28428d3c7b0",
-  measurementId: "G-1JN4F7C6JC"
-};
-
-const application = initializeApp(firebaseConfig)
-
-const db = getFirestore(application);
-//console.log(db)
-const sheetsInBDCol = collection(db, "sheets"); */
 
 //Buscar Hinos
 const inputFieldSearchEl = document.getElementById("input-field-search")
+
 const searchButtonEl = document.getElementById("search-button")
+
 const textParagraphEL = document.getElementById("p")
 const buscaComboEl = document.getElementById("busca")
 const sheetsEl = document.getElementById("sheets-search")
+
+const bodyEl = document.getElementById("bodyResults")
+
+let auxButton = 0
 
 searchButtonEl.addEventListener("click", function(){
     clearInputFieldSearch()
@@ -81,17 +71,73 @@ buscaComboEl.addEventListener("change", function(){
         inputFieldSearchEl.placeholder = "Busca por Categoria"
         break;
     default:
-        console.log(`Err`);
+        console.log(`Err`)
     }
 })
 
 
-export function clearInputFieldSearch(){
+function clearInputFieldSearch(){
     //inputFieldSearchEl.value = ""
     sheetsEl.innerHTML = ""
 }
 
-export function addFoundSheets(inputValue){
+function addFoundSheets(inputValue){
     textParagraphEL.innerHTML = "Hinos Encontrados: "
-    sheetsEl.innerHTML += `<li>${inputValue}</li>`    
+    auxButton++
+    sheetsEl.innerHTML += `<li id="li-reference">${inputValue}</li>
+                           <button id="download-button" class="download">
+                               <img id="img-reference" class="ico" src="../assets/download.png">
+                               Baixar: <br> ${inputValue}
+                            </button>
+                           <hr class="rounded">`
+}
+
+function updateBtnReference(){
+    let btnId = document.getElementById("sheets-search").getElementsByTagName("li")
+    let downloadButtonEl = document.getElementById("add-button" + btnId)
+    return downloadButtonEl
+}
+
+//Baixar Hinos
+document.addEventListener("click", function(e){
+    const target = e.target.closest("#download-button")
+    console.log(target)
+    let sheetName = target.textContent.replace("Baixar: ", "")
+    sheetName = sheetName.trim().replace(" ","").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    
+    if(target){
+        //window.location.replace("../html/results.html");        
+        //var win = window.open("../html/results.html")
+        downloadFile(sheetName)
+      //passar pro dowload file o parametro certinho
+    }
+    
+})
+
+function downloadFile(fileName){
+    
+    console.log(fileName)
+    getDownloadURL(sRef(storage, fileName)).then((url) => {
+        console.log(url)
+        // 'url' is the download URL for fileName
+        // This can be downloaded directly:
+        const xhr = new XMLHttpRequest()
+        xhr.responseType = 'blob'
+        xhr.onload = (event) => {
+        const blob = xhr.response
+        };
+        xhr.open('GET', url)
+        xhr.send()
+
+        // Or inserted into an <img> element
+        window.open(encodeURI(url))
+        //target.document.body.innerHTML += `<object type="application/pdf" id="object-pdf" data=${url}+"#zoom=80">`
+        //const object = document.getElementById('object-pdf')
+        //console.log(target)
+        //object.setAttribute('data', url+"#zoom=80")
+        //bodyEl.appendChild(object)
+    })
+    .catch((error) => {
+        // Handle any errors
+    });
 }

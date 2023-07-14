@@ -16,13 +16,21 @@ html, body {
     margin: 30px auto;
 }
 
+object{
+    width: 720px;
+    height:720px;
+    display:flex;
+    flex-direction: column;
+    margin: 30px auto;
+}
+
 h3 {    
     font-family: 'Nunito', sans-serif;
     margin: 0 auto;
 }
 
 img.style{
-    width: 250px;
+    width: 300px;
     margin: 0 auto;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -34,7 +42,7 @@ img.ico {
 }
 
 label {
-     text-align: center;   
+    text-align: center;   
 }
 
 #input-file {
@@ -85,6 +93,21 @@ button {
     margin: 10px 0;
 }
 
+button.download {
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    color: black;
+    background-color: gray;
+    border: 0;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 10 px;
+    text-align: left;
+    margin: 10px 0;
+    width: 250px;
+   /*  max-height: 150px; */
+}
+
 button:active{
     background-color: floralwhite;  
 }
@@ -100,3 +123,8 @@ select{
     text-align: center;
     margin: 10px 0;
 }
+
+hr.rounded {
+    border-top: 8px solid #bbb;
+    border-radius: 5px;
+  }
