@@ -300,18 +300,21 @@ document.addEventListener("click", function(e){
                             class="a" allow="autoplay"
                             style="                                
                                 width: 99%; 
-                                height: 95%;
+                                height: 80%;
                                 top: 50%;
                                 left: 50%;">
                         </iframe>
-                        <iframe src="${mp3Link}" 
-                            allow="autoplay" allowfullscreen="false" class="b"
-                            style="                                
-                                width: 99%; 
-                                height: 8%;
-                                top: 50%;
-                                left: 50%;">                       
-                        </iframe>`;
+                        <br>
+                        <audio 
+                            style="
+                                width: 100%;
+                                height: 50px;
+                                vertical-align: middle;
+                            "
+                            controls="controls" 
+                            src="https://docs.google.com/uc?export=open&amp;id=1fJAw-1cCiD6NBoh2ZzlZSSU1qzWz3YPK" 
+                            type="audio/mp3">
+                        </audio>`;
     localStorage.setItem('divValue', iframeHtml)
     window.open("nipe.html", "_blank")
 })
