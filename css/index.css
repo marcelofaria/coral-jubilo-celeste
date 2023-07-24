@@ -14,6 +14,7 @@ html, body {
     flex-direction: column;
     max-width: 320px;
     margin: 30px auto;
+    position:relative;
 }
 
 object{
@@ -93,6 +94,13 @@ button {
     margin: 10px 0;
 }
 
+button.hinos {
+    max-width: 60px;
+    padding: 15px;
+    margin: 10px 0;
+    
+} 
+
 button.download {
     cursor: pointer;
     font-family: 'Nunito', sans-serif;
@@ -127,4 +135,4 @@ select{
 hr.rounded {
     border-top: 8px solid #bbb;
     border-radius: 5px;
-  }
+}
