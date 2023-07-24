@@ -292,6 +292,8 @@ document.addEventListener("click", function(e){
             break;
     }
 
+    mp3Link = mp3Link.replace("https://drive.google.com/file/d/", "")
+    mp3Link = mp3Link.replace("/preview", "")
     console.log(pdfLink)
     console.log(mp3Link)
 
@@ -312,7 +314,7 @@ document.addEventListener("click", function(e){
                                 vertical-align: middle;
                             "
                             controls="controls" 
-                            src="https://docs.google.com/uc?export=open&amp;id=1fJAw-1cCiD6NBoh2ZzlZSSU1qzWz3YPK" 
+                            src="https://docs.google.com/uc?export=open&amp;id=${mp3Link}" 
                             type="audio/mp3">
                         </audio>`;
     localStorage.setItem('divValue', iframeHtml)
