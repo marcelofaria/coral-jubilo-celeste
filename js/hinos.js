@@ -318,6 +318,6 @@ document.addEventListener("click", function(e){
                             type="audio/mp3">
                         </audio>`;
     localStorage.setItem('divValue', iframeHtml)
-    window.open("nipe.html", "_blank")
+    window.open("nipe.html", "_self")
 })
 
