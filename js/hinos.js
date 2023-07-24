@@ -302,7 +302,7 @@ document.addEventListener("click", function(e){
                             class="a" allow="autoplay"
                             style="                                
                                 width: 99%; 
-                                height: 80%;
+                                height: 70%;
                                 top: 50%;
                                 left: 50%;">
                         </iframe>
@@ -310,7 +310,7 @@ document.addEventListener("click", function(e){
                         <audio 
                             style="
                                 width: 100%;
-                                height: 50px;
+                                height: 40px;
                                 vertical-align: middle;
                             "
                             controls="controls" 
