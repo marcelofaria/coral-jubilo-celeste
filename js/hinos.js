@@ -37,7 +37,7 @@ document.addEventListener("click", function(e){
                     break; 
                 case "PLAYBACK":
                     pdfLink = "https://drive.google.com/file/d/1cFwAtoX0_8BOa6lAQr_WGk3-C7IHnyly/preview"
-                    mp3Link = ""
+                    mp3Link = "https://drive.google.com/file/d/1WYvV4c5F8oYUiLOYVxGMi_xVn1rNHDvS/preview"
                     break; 
                 default:
                     console.log('Nipe não encontrado');
@@ -64,7 +64,7 @@ document.addEventListener("click", function(e){
                     break; 
                 case "PLAYBACK":
                     pdfLink = "https://drive.google.com/file/d/1XNk9e7sCEkh-1aVs7mrCKyjGVWntwAhE/preview"
-                    mp3Link = ""
+                    mp3Link = "https://drive.google.com/file/d/1W_bBn9-1QWFBMZelpraO-Q2dvkp_kNgK/preview"
                     break; 
                 default:
                     console.log('Nipe não encontrado');
@@ -91,7 +91,7 @@ document.addEventListener("click", function(e){
                     break; 
                 case "PLAYBACK":
                     pdfLink = "https://drive.google.com/file/d/1PIV1NmHubvwLj9KcIJcK5GRptwXBzL3R/preview"
-                    mp3Link = ""
+                    mp3Link = "https://drive.google.com/file/d/1WE-318jEnRewGZCooH1Pzpr-cN81D9qC/preview"
                     break; 
                 default:
                     console.log('Nipe não encontrado');
@@ -118,7 +118,7 @@ document.addEventListener("click", function(e){
                     break; 
                 case "PLAYBACK":
                     pdfLink = "https://drive.google.com/file/d/1-UO3EL42Cy_wdMhdpF0AkaPUTnD6wDnO/preview"
-                    mp3Link = ""
+                    mp3Link = "https://drive.google.com/file/d/1WTKey0PhF8RnArPLdRBMVrb-ETsyxrYC/preview"
                     break; 
                 default:
                     console.log('Nipe não encontrado');
@@ -145,7 +145,7 @@ document.addEventListener("click", function(e){
                     break; 
                 case "PLAYBACK":
                     pdfLink = "https://drive.google.com/file/d/1YaA39Aj9-QTTYbVJ1oTE0KCwjqYBo1zn/preview"
-                    mp3Link = ""
+                    mp3Link = "https://drive.google.com/file/d/1WFh3BE_66_BPLtwh4KgRe_mXZAXEQkWR/preview"
                     break; 
                 default:
                     console.log('Nipe não encontrado');
@@ -172,7 +172,7 @@ document.addEventListener("click", function(e){
                     break; 
                 case "PLAYBACK":
                     pdfLink = "https://drive.google.com/file/d/1K_BgS5GunWUdXwrIdD3vnF2LF0TG3z1x/preview"
-                    mp3Link = ""
+                    mp3Link = "https://drive.google.com/file/d/1WDH1wxQvh_Bfj5vsRukTniO0VcbN0aa9/preview"
                     break; 
                 default:
                     console.log('Nipe não encontrado');
@@ -199,7 +199,7 @@ document.addEventListener("click", function(e){
                     break; 
                 case "PLAYBACK":
                     pdfLink = "https://drive.google.com/file/d/1vf8qHYoql0kfstsAHto8228QV4zsvL5w/preview"
-                    mp3Link = ""
+                    mp3Link = "https://drive.google.com/file/d/1W90z0uEvLpVzBACs2PgUUpkq0i_hSElT/preview"
                     break; 
                 default:
                     console.log('Nipe não encontrado');
@@ -226,7 +226,7 @@ document.addEventListener("click", function(e){
                     break; 
                 case "PLAYBACK":
                     pdfLink = "https://drive.google.com/file/d/1o1zb-7l3JoLCPj9GhZ5A2FV51ivsg_ez/preview"
-                    mp3Link = ""
+                    mp3Link = "https://drive.google.com/file/d/1W1CJNj5_khrkaLEYetidSLvIh0A7s8Bg/preview"
                     break; 
                 default:
                     console.log('Nipe não encontrado');
@@ -253,7 +253,7 @@ document.addEventListener("click", function(e){
                     break;
                 case "PLAYBACK":
                     pdfLink = "https://drive.google.com/file/d/1MSn-JAv-MvInMKoJq7TSOlyIawYuOiQV/preview"
-                    mp3Link = ""
+                    mp3Link = "https://drive.google.com/file/d/1VvshEjfFhbPzotqOxEpbGI-wBz_V99RL/preview"
                     break; 
                 default:
                     console.log('Nipe não encontrado');
@@ -280,7 +280,7 @@ document.addEventListener("click", function(e){
                     break;
                 case "PLAYBACK":
                     pdfLink = "https://drive.google.com/file/d/1v7tKXX3HGx3zTmHe_cGS-KWoB-Ss0Sla/preview"
-                    mp3Link = ""
+                    mp3Link = "https://drive.google.com/file/d/1WxnPCl6u9BerCb7suNvOD1meDB5q5PN5/preview"
                     break; 
                 default:
                     console.log('Nipe não encontrado');
@@ -302,7 +302,7 @@ document.addEventListener("click", function(e){
                             class="a" allow="autoplay"
                             style="                                
                                 width: 99%; 
-                                height: 70%;
+                                height: 75%;
                                 top: 50%;
                                 left: 50%;">
                         </iframe>
