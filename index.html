@@ -16,9 +16,9 @@
             h1{margin:0 0 6px;font-size:32px;letter-spacing:0.6px;display:flex;align-items:center;gap:12px;justify-content:center}
             .note{width:40px;height:40px;display:inline-block;vertical-align:middle}
             p.lead{color:var(--muted);margin:8px 0 18px;font-size:15px}
-            .links{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px}
-            .links a{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#ffb347);color:#082032;text-decoration:none;font-weight:700;box-shadow:0 6px 18px rgba(11,59,102,0.18)}
-            .links a.secondary{background:transparent;color:var(--accent);border:1px solid rgba(255,209,102,0.12);box-shadow:none}
+            .links{display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:18px}
+            .links a{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#ffb347);color:#082032;text-decoration:none;font-weight:700;box-shadow:0 6px 18px rgba(11,59,102,0.18);width:260px;justify-content:center}
+            .links a.secondary{background:linear-gradient(90deg,var(--accent),#ffb347);color:#082032;border:0;box-shadow:0 6px 18px rgba(11,59,102,0.18)}
             .links a svg{filter:drop-shadow(0 4px 8px rgba(0,0,0,0.25));}
             .footer-note{margin-top:18px;color:rgba(238,242,246,0.65);font-size:13px}
             @media (max-width:520px){.hub{padding:24px} .links a{width:100%;justify-content:center}}
@@ -30,10 +30,10 @@
             <p class="lead">Bem-vindo ao hub do site — escolha uma seção abaixo.</p>
 
             <div class="links">
-                <a href="html/index.html">Adicionar Hino</a>
+                <a href="html/index_repertorio.html">Repertório</a>
                 <a href="html/search.html">Pesquisar Hino</a>
+                <a href="html/index_cantata.html">Adicionar Hino</a>
                 <a href="html/cantata.html">Cantata 2023</a>
-                <a href="repertorio/index.html" class="secondary">Repertório</a>
             </div>
 
             <p style="margin-top:18px;color:#8a94a6;font-size:13px">Versão local — navegue para editar ou visualizar páginas.</p>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Repertório — Coral Júbilo Celeste</title>
+    <link rel="stylesheet" href="/css/index.css">
+    <style>
+      :root{--bg1:#0f1724;--bg2:#0b3b66;--accent:#ffd166;--muted:#98a0b3}
+      body{font-family: 'Nunito', system-ui, sans-serif;margin:0;min-height:100vh;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#eef2f6}
+      .wrap{max-width:1100px;margin:40px auto;padding:32px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));box-shadow:0 12px 40px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.04)}
+      h1{margin:0;font-size:28px;display:flex;align-items:center;gap:12px}
+      p.lead{color:var(--muted);margin:8px 0 18px}
+
+      /* Lista agrupada */
+      .group{margin:18px 0}
+      .group-head{display:flex;align-items:center;gap:12px}
+      .letter{font-weight:800;background:linear-gradient(90deg,var(--accent),#ffb347);color:#082032;padding:8px 14px;border-radius:10px;min-width:48px;text-align:center;box-shadow:0 8px 20px rgba(0,0,0,0.25)}
+      .divider{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));margin-left:12px}
+
+      ul{list-style:none;padding:12px 0 0 0;margin:0}
+      li{padding:12px 16px;border-radius:10px;background:rgba(255,255,255,0.03);margin:8px 0;display:flex;align-items:center;justify-content:space-between}
+      a.file{color:#ffd166;text-decoration:none;font-weight:700}
+      .meta{color:var(--muted);font-size:13px}
+
+      @media (max-width:700px){.wrap{padding:20px} .letter{min-width:40px;padding:6px 10px}}
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Repertório</h1>
+      <p class="lead">Lista dos hinos disponíveis no <strong>Repertório</strong>. Clique no nome para abrir o PDF.</p>
+
+      <div id="listArea">
+        <p class="empty">Carregando lista…</p>
+      </div>
+    </div>
+
+    <script>
+      async function loadList(){
+        try{
+          const res = await fetch('../json/repertorio.json');
+          if(!res.ok) throw new Error('Não foi possível carregar list.json');
+          const files = await res.json();
+          const area = document.getElementById('listArea');
+          if(!Array.isArray(files) || files.length===0){ area.innerHTML = '<p class="empty">Nenhum hino encontrado. Adicione arquivos PDF na pasta /repertorio/ e atualize list.json.</p>'; return }
+
+          // Agrupar por inicial (alfabeto)
+          const groups = {};
+          files.forEach(name=>{
+            const initial = (name.trim()[0]||'#').toUpperCase();
+            if(!/[A-ZÀ-Ý]/.test(initial)){
+              const key = '#';
+              groups[key] = groups[key]||[]; groups[key].push(name); return
+            }
+            groups[initial] = groups[initial]||[]; groups[initial].push(name);
+          })
+
+          // ordenar chaves A-Z then '#'
+          const keys = Object.keys(groups).sort((a,b)=>{ if(a==='#') return 1; if(b==='#') return -1; return a.localeCompare(b,'pt') })
+
+          area.innerHTML='';
+          keys.forEach(k=>{
+            const grp = document.createElement('section'); grp.className='group';
+            const head = document.createElement('div'); head.className='group-head';
+            const letter = document.createElement('div'); letter.className='letter'; letter.textContent=k;
+            const div = document.createElement('div'); div.className='divider';
+            head.appendChild(letter); head.appendChild(div);
+            grp.appendChild(head);
+
+            const ul = document.createElement('ul');
+            groups[k].forEach(name=>{
+              const li = document.createElement('li');
+              const a = document.createElement('a'); a.className='file'; a.textContent = name; a.href = `viewer.html?file=${encodeURIComponent(name)}`; a.target='_blank';
+              li.appendChild(a);
+              ul.appendChild(li);
+            })
+            grp.appendChild(ul);
+            area.appendChild(grp);
+          })
+        }catch(e){
+          document.getElementById('listArea').innerHTML = '<p class="empty">Erro ao carregar lista.</p>'
+          console.error(e)
+        }
+      }
+      loadList()
+    </script>
+  </body>
+</html>
