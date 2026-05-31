@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Repertório — Coral Júbilo Celeste</title>
+    <link rel="stylesheet" href="/css/index.css">
+    <style>
+      body{font-family:Nunito,system-ui,sans-serif;padding:28px;background:#f4f6f8;color:#0b1220}
+      .container{max-width:900px;margin:0 auto}
+      h1{display:flex;align-items:center;gap:12px}
+      ul{list-style:none;padding:0;margin-top:18px}
+      li{padding:10px 14px;border-radius:8px;background:#fff;margin-bottom:8px;box-shadow:0 6px 18px rgba(11,59,102,0.04)}
+      a.file{color:#0b3b66;text-decoration:none;font-weight:700}
+      .empty{color:#6b7280}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Repertório</h1>
+      <p class="lead">Lista dos hinos disponíveis no diretório <strong>/repertorio/</strong>. Clique no nome para abrir o PDF.</p>
+
+      <div id="listArea">
+        <p class="empty">Carregando lista…</p>
+      </div>
+    </div>
+
+    <script>
+      async function loadList(){
+        try{
+          const res = await fetch('../json/repertorio.json');
+          if(!res.ok) throw new Error('Não foi possível carregar list.json');
+          const files = await res.json();
+          const area = document.getElementById('listArea');
+          if(!Array.isArray(files) || files.length===0){ area.innerHTML = '<p class="empty">Nenhum hino encontrado. Adicione arquivos PDF na pasta /repertorio/ e atualize list.json.</p>'; return }
+          const ul = document.createElement('ul');
+          files.forEach(name=>{
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.textContent = name;
+            a.href = `../html/viewer.html?file=${encodeURIComponent(name)}`;
+            a.className = 'file';
+            a.target = '_blank';
+            li.appendChild(a);
+            ul.appendChild(li);
+          })
+          area.innerHTML=''; area.appendChild(ul);
+        }catch(e){
+          document.getElementById('listArea').innerHTML = '<p class="empty">Erro ao carregar lista.</p>'
+          console.error(e)
+        }
+      }
+      loadList()
+    </script>
+  </body>
+</html>

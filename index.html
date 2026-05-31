@@ -1,14 +1,42 @@
 <!doctype html>
-<html>
-    <meta charset="utf-8"/>
-    <head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
-        <title>Coral Jubilo Celeste</title>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Coral Júbilo Celeste — Página Principal</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="..\css\index.css">
+        <link rel="stylesheet" href="css/index.css">
+        <style>
+            :root{--bg1:#0f1724;--bg2:#0b3b66;--accent:#ffd166;--muted:#98a0b3}
+            body{font-family: 'Nunito', system-ui, sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 100%);color:#eef2f6}
+            .hub{max-width:900px;width:100%;padding:40px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));backdrop-filter:blur(6px);box-shadow:0 10px 40px rgba(2,6,23,0.6);text-align:center;border:1px solid rgba(255,255,255,0.04)}
+            h1{margin:0 0 6px;font-size:32px;letter-spacing:0.6px;display:flex;align-items:center;gap:12px;justify-content:center}
+            .note{width:40px;height:40px;display:inline-block;vertical-align:middle}
+            p.lead{color:var(--muted);margin:8px 0 18px;font-size:15px}
+            .links{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px}
+            .links a{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#ffb347);color:#082032;text-decoration:none;font-weight:700;box-shadow:0 6px 18px rgba(11,59,102,0.18)}
+            .links a.secondary{background:transparent;color:var(--accent);border:1px solid rgba(255,209,102,0.12);box-shadow:none}
+            .links a svg{filter:drop-shadow(0 4px 8px rgba(0,0,0,0.25));}
+            .footer-note{margin-top:18px;color:rgba(238,242,246,0.65);font-size:13px}
+            @media (max-width:520px){.hub{padding:24px} .links a{width:100%;justify-content:center}}
+        </style>
     </head>
     <body>
-        <p>Coral Jubilo Celeste</p>
+        <main class="hub">
+            <h1>Coral Júbilo Celeste</h1>
+            <p class="lead">Bem-vindo ao hub do site — escolha uma seção abaixo.</p>
+
+            <div class="links">
+                <a href="html/index.html">Adicionar Hino</a>
+                <a href="html/search.html">Pesquisar Hino</a>
+                <a href="html/cantata.html">Cantata 2023</a>
+                <a href="repertorio/index.html" class="secondary">Repertório</a>
+            </div>
+
+            <p style="margin-top:18px;color:#8a94a6;font-size:13px">Versão local — navegue para editar ou visualizar páginas.</p>
+        </main>
     </body>
 </html>
