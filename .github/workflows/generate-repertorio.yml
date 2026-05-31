@@ -19,11 +19,8 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
-        run: npm ci
-
       - name: Generate repertorio.json
-        run: npm run generate-repertorio
+        run: node ./scripts/generate-repertorio-json.js
 
       - name: Commit generated JSON if changed
         run: |
