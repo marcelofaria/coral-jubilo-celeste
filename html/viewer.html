@@ -18,10 +18,15 @@
       const params = new URLSearchParams(location.search);
       const file = params.get('file');
       const frame = document.getElementById('pdfFrame');
-      if(!file){ frame.src='about:blank' }
+      if(!file){ frame.src='about:blank'; document.title = 'Visualizador de Hino' }
       else{
         // PDF served from the repository under /repertorio/<file>
         frame.src = `../repertorio/${file}`;
+        try{
+          const decoded = decodeURIComponent(file);
+          const display = decoded.replace(/\.pdf$/i,'');
+          document.title = display + ' — Repertório';
+        }catch(e){ document.title = 'Visualizador de Hino' }
       }
     </script>
   </body>

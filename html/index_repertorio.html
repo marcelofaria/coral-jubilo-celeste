@@ -73,8 +73,9 @@
             groups[k].forEach(name=>{
               const displayName = name.replace(/\.pdf$/i,'');
               const li = document.createElement('li');
-              const a = document.createElement('a'); a.className='file'; a.textContent = displayName; a.href = `viewer.html?file=${encodeURIComponent(name)}`;
-              // abrir na mesma aba para evitar comportamento de "Open" em navegadores móveis
+              const a = document.createElement('a'); a.className='file'; a.textContent = displayName;
+              // apontar direto para o PDF no repositório (abre melhor em navegadores móveis)
+              a.href = `../repertorio/${encodeURIComponent(name)}`;
               a.addEventListener('click', (ev)=>{ ev.preventDefault(); location.href = a.href });
               li.appendChild(a);
               ul.appendChild(li);
