@@ -76,7 +76,14 @@
               const a = document.createElement('a'); a.className='file'; a.textContent = displayName;
               // apontar direto para o PDF no repositório (abre melhor em navegadores móveis)
               a.href = `../repertorio/${encodeURIComponent(name)}`;
-              a.addEventListener('click', (ev)=>{ ev.preventDefault(); location.href = a.href });
+              // tornar a linha inteira clicável: navega ao clicar no <li>
+              li.style.cursor = 'pointer';
+              li.addEventListener('click', ()=>{ location.href = a.href });
+              // garantir que o link visual ocupe o espaço (acessibilidade/seleção)
+              a.style.display = 'block';
+              a.style.width = '100%';
+              a.style.height = '100%';
+              a.style.textDecoration = 'none';
               li.appendChild(a);
               ul.appendChild(li);
             })
