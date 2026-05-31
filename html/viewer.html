@@ -4,21 +4,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Visualizador de Hino</title>
-    <style>body{margin:0;height:100vh} .top{padding:12px;background:#0b3b66;color:#fff;display:flex;align-items:center;gap:12px}
-    .back{color:#ffd166;text-decoration:none;font-weight:700}
-    iframe{border:0;width:100%;height:calc(100vh - 56px)}</style>
+    <style>
+      body{margin:0;height:100vh;background:#071126;color:#fff;font-family:Nunito,system-ui,sans-serif}
+      iframe{border:0;width:100%;height:100vh}
+      .floating-back{position:fixed;left:14px;top:14px;z-index:60;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,#ffd166,#ffb347);color:#082032;text-decoration:none;font-weight:800;box-shadow:0 8px 24px rgba(2,6,23,0.6)}
+      .title{position:fixed;left:70px;top:20px;z-index:55;color:#ffd166;font-weight:700;background:transparent;padding:6px 10px;border-radius:8px}
+      @media (max-width:520px){.title{left:62px;top:16px;font-size:13px}}
+    </style>
   </head>
   <body>
-    <!-- <div class="top"><a class="back" href="index_repertorio.html">← Voltar</a><div id="title">Abrindo PDF…</div></div> -->
     <iframe id="pdfFrame" src="about:blank"></iframe>
     <script>
       const params = new URLSearchParams(location.search);
       const file = params.get('file');
-      const title = document.getElementById('title');
       const frame = document.getElementById('pdfFrame');
-      if(!file){ title.textContent='Arquivo não especificado'; frame.src='about:blank' }
+      if(!file){ frame.src='about:blank' }
       else{
-        title.textContent = file;
         // PDF served from the repository under /repertorio/<file>
         frame.src = `../repertorio/${file}`;
       }
