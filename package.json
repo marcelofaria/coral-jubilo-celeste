@@ -8,6 +8,7 @@
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-repertorio": "node ./scripts/generate-repertorio-json.js"
   }
 }
