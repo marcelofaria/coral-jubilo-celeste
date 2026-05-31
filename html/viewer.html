@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Visualizador de Hino</title>
+    <style>body{margin:0;height:100vh} .top{padding:12px;background:#0b3b66;color:#fff;display:flex;align-items:center;gap:12px}
+    .back{color:#ffd166;text-decoration:none;font-weight:700}
+    iframe{border:0;width:100%;height:calc(100vh - 56px)}</style>
+  </head>
+  <body>
+    <div class="top"><a class="back" href="../repertorio/index.html">← Voltar</a><div id="title">Abrindo PDF…</div></div>
+    <iframe id="pdfFrame" src="about:blank"></iframe>
+    <script>
+      const params = new URLSearchParams(location.search);
+      const file = params.get('file');
+      const title = document.getElementById('title');
+      const frame = document.getElementById('pdfFrame');
+      if(!file){ title.textContent='Arquivo não especificado'; frame.src='about:blank' }
+      else{
+        title.textContent = file;
+        // PDF served from the repository under /repertorio/<file>
+        frame.src = `../repertorio/${file}`;
+      }
+    </script>
+  </body>
+</html>
