@@ -1,26 +1,41 @@
 name: OCR index on PDFs
+
 on:
   push:
+    branches: [ main, develop ]
     paths:
       - 'repertorio/**/*.pdf'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 18
+
       - name: Install system deps
         run: sudo apt-get update && sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-por
+
       - name: Install npm deps
         run: npm ci
+
       - name: Generate repertorio list
         run: node scripts/generate-repertorio-json.js
+
       - name: Generate OCR index
         run: node scripts/generate-repertorio-ocr.js
+
       - name: Show generated JSON files
         run: |
           echo 'JSON folder listing:'
@@ -29,15 +44,23 @@ jobs:
           head -n 40 json/repertorio.json || true
           echo 'repertorio_ocr.json preview:'
           head -n 40 json/repertorio_ocr.json || true
+
       - name: Upload generated JSONs as artifact
         uses: actions/upload-artifact@v4
         with:
           name: repertorio-jsons
           path: json/
-      - name: Commit generated JSON
+
+      - name: Commit generated JSON if changed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "actions@github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add json/repertorio.json json/repertorio_ocr.json || true
-          git commit -m "Update repertorio JSONs (OCR)" || echo "no changes"
-          git push || echo "push failed (check branch protection or permissions)"
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: atualizar json/repertorio.json e json/repertorio_ocr.json (automático)"
+            git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} HEAD:${{ github.ref }}
+          else
+            echo "No changes to commit"
+          fi
