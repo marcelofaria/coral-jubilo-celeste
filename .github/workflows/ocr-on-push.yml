@@ -21,10 +21,23 @@ jobs:
         run: node scripts/generate-repertorio-json.js
       - name: Generate OCR index
         run: node scripts/generate-repertorio-ocr.js
+      - name: Show generated JSON files
+        run: |
+          echo 'JSON folder listing:'
+          ls -la json || true
+          echo 'repertorio.json preview:'
+          head -n 40 json/repertorio.json || true
+          echo 'repertorio_ocr.json preview:'
+          head -n 40 json/repertorio_ocr.json || true
+      - name: Upload generated JSONs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: repertorio-jsons
+          path: json/
       - name: Commit generated JSON
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
           git add json/repertorio.json json/repertorio_ocr.json || true
           git commit -m "Update repertorio JSONs (OCR)" || echo "no changes"
-          git push || echo "push failed"
+          git push || echo "push failed (check branch protection or permissions)"
