@@ -14,6 +14,13 @@ try{
   files.sort((a,b)=> a.localeCompare(b,'pt', {sensitivity:'base'}))
   fs.writeFileSync(outFile, JSON.stringify(files, null, 2), 'utf8')
   console.log(`Wrote ${files.length} entries to ${path.relative(process.cwd(), outFile)}`)
+    // after updating the list, update the OCR index as well
+    try{
+      const { execFileSync } = require('child_process');
+      execFileSync('node', [path.resolve(__dirname, 'generate-repertorio-ocr.js')], { stdio: 'inherit' });
+    }catch(err){
+      console.error('Failed to run OCR generator:', err && err.message || err);
+    }
 }catch(err){
   console.error('Failed to generate repertorio.json:', err.message)
   process.exit(1)

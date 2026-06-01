@@ -32,22 +32,32 @@ function cleanupFiles(files){
 
 try{
   ensureDir(path.dirname(outFile));
-  const entries = listPdfFiles(repoDir);
 
-  let prevIndex = {};
-  if(fs.existsSync(outFile)){
-    try{ prevIndex = JSON.parse(fs.readFileSync(outFile,'utf8')) }catch(e){ prevIndex = {} }
+  // prefer reading the canonical list from json/repertorio.json if available
+  let files = null;
+  const repListPath = path.resolve(__dirname, '..', 'json', 'repertorio.json');
+  if(fs.existsSync(repListPath)){
+    try{ files = JSON.parse(fs.readFileSync(repListPath,'utf8')) }catch(e){ files = null }
+  }
+  if(!Array.isArray(files)){
+    files = listPdfFiles(repoDir);
   }
 
-  const result = {};
+  let prevIndexArr = [];
+  if(fs.existsSync(outFile)){
+    try{ prevIndexArr = JSON.parse(fs.readFileSync(outFile,'utf8')) }catch(e){ prevIndexArr = [] }
+  }
+  const prevIndex = prevIndexArr.reduce((m,e)=>{ m[e.name]=e; return m }, {});
 
-  for(const name of entries){
+  const resultArr = [];
+
+  for(const name of files){
     const full = path.join(repoDir, name);
-    const stat = fs.statSync(full);
-    const mtime = stat.mtimeMs;
+    let mtime = 0;
+    try{ const stat = fs.statSync(full); mtime = stat.mtimeMs }catch(e){ mtime = 0 }
 
     if(prevIndex[name] && prevIndex[name].mtime === mtime){
-      result[name] = prevIndex[name];
+      resultArr.push(prevIndex[name]);
       continue;
     }
 
@@ -56,14 +66,14 @@ try{
     // create a temporary base path for images
     const tmpBase = path.join(os.tmpdir(), `ocr-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     try{
-      // convert PDF pages to PNG images (requires pdftoppm)
       execFileSync('pdftoppm', ['-png', '-r', '300', full, tmpBase], { stdio: 'ignore' });
     }catch(err){
       console.error('pdftoppm error (is poppler installed?):', err.message);
-      process.exit(1);
+      // continue but add empty letra to avoid losing entry
+      resultArr.push({ name, title: path.basename(name, '.pdf'), letra: '', mtime });
+      continue;
     }
 
-    // collect generated images
     const tmpDir = path.dirname(tmpBase);
     const baseName = path.basename(tmpBase);
     const imgs = fs.readdirSync(tmpDir)
@@ -81,14 +91,13 @@ try{
       }
     }
 
-    // cleanup images
     cleanupFiles(imgs);
 
     const sanitized = sanitize(fullText);
-    result[name] = { title: path.basename(name, '.pdf'), text: sanitized, mtime };
+    resultArr.push({ name, title: path.basename(name, '.pdf'), letra: sanitized, mtime });
   }
 
-  fs.writeFileSync(outFile, JSON.stringify(result, null, 2), 'utf8');
+  fs.writeFileSync(outFile, JSON.stringify(resultArr, null, 2), 'utf8');
   console.log('Wrote OCR index to', path.relative(process.cwd(), outFile));
 }catch(err){
   console.error('generate-repertorio-ocr failed:', err && err.message || err);
