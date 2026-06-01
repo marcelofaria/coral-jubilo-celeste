@@ -28,7 +28,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-por
 
       - name: Install npm deps
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Generate OCR index
         run: node scripts/generate-repertorio-ocr.js
