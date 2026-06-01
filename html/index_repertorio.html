@@ -31,65 +31,93 @@
       <h1>Repertório</h1>
       <p class="lead">Lista dos hinos disponíveis no <strong>Repertório</strong>. Clique no nome para abrir o PDF.</p>
 
+      <div style="margin-bottom:18px">
+        <input id="searchInput" type="search" placeholder="Buscar hinos (títulos e conteúdo dos PDFs)" style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:inherit;font-size:16px" />
+      </div>
+
       <div id="listArea">
         <p class="empty">Carregando lista…</p>
       </div>
     </div>
-
     <script>
+      function sanitize(str){
+        if(!str) return '';
+        return str
+          .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+          .replace(/[^0-9A-Za-zÀ-ÿ\s]/g,' ')
+          .replace(/\s+/g,' ')
+          .trim()
+          .toLowerCase();
+      }
+
       async function loadList(){
         try{
-          const res = await fetch('../json/repertorio.json');
-          if(!res.ok) throw new Error('Não foi possível carregar list.json');
-          const files = await res.json();
+          const [resList, resOcr] = await Promise.all([
+            fetch('../json/repertorio.json'),
+            fetch('../json/repertorio_ocr.json').catch(()=>null)
+          ]);
+          if(!resList.ok) throw new Error('Não foi possível carregar repertorio.json');
+          const files = await resList.json();
+          const ocrIndex = resOcr && resOcr.ok ? await resOcr.json() : {};
+
           const area = document.getElementById('listArea');
-          if(!Array.isArray(files) || files.length===0){ area.innerHTML = '<p class="empty">Nenhum hino encontrado. Adicione arquivos PDF na pasta /repertorio/ e atualize list.json.</p>'; return }
+          if(!Array.isArray(files) || files.length===0){
+            area.innerHTML = '<p class="empty">Nenhum hino encontrado. Adicione arquivos PDF na pasta /repertorio/ e atualize list.json.</p>';
+            return;
+          }
 
-          // Agrupar por inicial (alfabeto)
-          const groups = {};
-          files.forEach(name=>{
-            const displayName = name.replace(/\.pdf$/i,'');
-            const initial = (displayName.trim()[0]||'#').toUpperCase();
-            if(!/[A-ZÀ-Ý]/.test(initial)){
-              const key = '#';
-              groups[key] = groups[key]||[]; groups[key].push(name); return
+          const prepared = files.map(name=>{
+            const title = name.replace(/\.pdf$/i,'');
+            const o = ocrIndex[name] && ocrIndex[name].text ? ocrIndex[name].text : '';
+            return { name, title, searchText: sanitize(title) + ' ' + sanitize(o) };
+          });
+
+          const render = list => {
+            if(list.length===0){ area.innerHTML = '<p class="empty">Nenhum resultado.</p>'; return }
+            area.innerHTML = '';
+            const groups = {};
+            list.forEach(item=>{
+              const initial = (item.title.trim()[0]||'#').toUpperCase();
+              const key = /[A-ZÀ-Ý]/.test(initial) ? initial : '#';
+              groups[key] = groups[key]||[]; groups[key].push(item);
+            });
+            const keys = Object.keys(groups).sort((a,b)=>{ if(a==='#') return 1; if(b==='#') return -1; return a.localeCompare(b,'pt') });
+            keys.forEach(k=>{
+              const grp = document.createElement('section'); grp.className='group';
+              const head = document.createElement('div'); head.className='group-head';
+              const letter = document.createElement('div'); letter.className='letter'; letter.textContent=k;
+              const div = document.createElement('div'); div.className='divider'; head.appendChild(letter); head.appendChild(div); grp.appendChild(head);
+              const ul = document.createElement('ul');
+              groups[k].forEach(it=>{
+                const li = document.createElement('li');
+                const a = document.createElement('a'); a.className='file'; a.textContent = it.title;
+                a.href = `../repertorio/${encodeURIComponent(it.name)}`;
+                li.style.cursor = 'pointer'; li.addEventListener('click', ()=>{ location.href = a.href });
+                a.style.display='block'; a.style.width='100%'; a.style.height='100%'; a.style.textDecoration='none';
+                li.appendChild(a); ul.appendChild(li);
+              });
+              grp.appendChild(ul); area.appendChild(grp);
+            });
+          };
+
+          render(prepared);
+
+          const input = document.getElementById('searchInput');
+          input.addEventListener('input', ()=>{
+            const q = sanitize(input.value || '');
+            if(!q) return render(prepared);
+            const filtered = prepared.filter(p => p.searchText.includes(q));
+            render(filtered);
+          });
+
+          input.addEventListener('keydown', (e)=>{
+            if(e.key==='Enter'){
+              const q = sanitize(input.value || '');
+              const first = prepared.find(p => p.searchText.includes(q));
+              if(first) location.href = `../repertorio/${encodeURIComponent(first.name)}`;
             }
-            groups[initial] = groups[initial]||[]; groups[initial].push(name);
-          })
+          });
 
-          // ordenar chaves A-Z then '#'
-          const keys = Object.keys(groups).sort((a,b)=>{ if(a==='#') return 1; if(b==='#') return -1; return a.localeCompare(b,'pt') })
-
-          area.innerHTML='';
-          keys.forEach(k=>{
-            const grp = document.createElement('section'); grp.className='group';
-            const head = document.createElement('div'); head.className='group-head';
-            const letter = document.createElement('div'); letter.className='letter'; letter.textContent=k;
-            const div = document.createElement('div'); div.className='divider';
-            head.appendChild(letter); head.appendChild(div);
-            grp.appendChild(head);
-
-            const ul = document.createElement('ul');
-            groups[k].forEach(name=>{
-              const displayName = name.replace(/\.pdf$/i,'');
-              const li = document.createElement('li');
-              const a = document.createElement('a'); a.className='file'; a.textContent = displayName;
-              // apontar direto para o PDF no repositório (abre melhor em navegadores móveis)
-              a.href = `../repertorio/${encodeURIComponent(name)}`;
-              // tornar a linha inteira clicável: navega ao clicar no <li>
-              li.style.cursor = 'pointer';
-              li.addEventListener('click', ()=>{ location.href = a.href });
-              // garantir que o link visual ocupe o espaço (acessibilidade/seleção)
-              a.style.display = 'block';
-              a.style.width = '100%';
-              a.style.height = '100%';
-              a.style.textDecoration = 'none';
-              li.appendChild(a);
-              ul.appendChild(li);
-            })
-            grp.appendChild(ul);
-            area.appendChild(grp);
-          })
         }catch(e){
           document.getElementById('listArea').innerHTML = '<p class="empty">Erro ao carregar lista.</p>'
           console.error(e)

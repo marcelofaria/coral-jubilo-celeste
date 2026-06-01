@@ -1,0 +1,30 @@
+name: OCR index on PDFs
+on:
+  push:
+    paths:
+      - 'repertorio/**/*.pdf'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install system deps
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-por
+      - name: Install npm deps
+        run: npm ci
+      - name: Generate repertorio list
+        run: node scripts/generate-repertorio-json.js
+      - name: Generate OCR index
+        run: node scripts/generate-repertorio-ocr.js
+      - name: Commit generated JSON
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add json/repertorio.json json/repertorio_ocr.json || true
+          git commit -m "Update repertorio JSONs (OCR)" || echo "no changes"
+          git push || echo "push failed"
