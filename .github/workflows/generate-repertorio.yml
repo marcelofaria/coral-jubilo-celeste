@@ -54,9 +54,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Ensure authenticated origin for fetch/pull/push
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git add json/repertorio.json json/repertorio_ocr.json || true
           if ! git diff --staged --quiet; then
             git commit -m "chore: atualizar json/repertorio.json e json/repertorio_ocr.json (automático)"
+            # Rebase local commit onto latest remote to avoid non-fast-forward errors
+            git fetch origin ${{ github.ref }}
+            git rebase origin/${{ github.ref }} || { echo "Rebase failed, aborting"; git rebase --abort || true; exit 1; }
             git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} HEAD:${{ github.ref }}
           else
             echo "No changes to commit"
