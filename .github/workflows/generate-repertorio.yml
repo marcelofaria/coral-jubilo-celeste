@@ -59,9 +59,10 @@ jobs:
           git add json/repertorio.json json/repertorio_ocr.json || true
           if ! git diff --staged --quiet; then
             git commit -m "chore: atualizar json/repertorio.json e json/repertorio_ocr.json (automático)"
-            # Rebase local commit onto latest remote to avoid non-fast-forward errors
+            # Update remote and rebase local commit onto latest remote to avoid non-fast-forward errors.
+            # Use --autostash to handle any unstaged/local changes created during CI steps.
             git fetch origin ${{ github.ref_name }} || git fetch origin
-            git rebase origin/${{ github.ref_name }} || { echo "Rebase failed, aborting"; git rebase --abort || true; exit 1; }
+            git pull --rebase --autostash origin ${{ github.ref_name }} || { echo "Pull --rebase failed, aborting"; exit 1; }
             git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} HEAD:${{ github.ref }}
           else
             echo "No changes to commit"
