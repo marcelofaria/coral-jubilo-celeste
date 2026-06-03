@@ -50,6 +50,10 @@
           .toLowerCase();
       }
 
+      function compactSearchText(str){
+        return sanitize(str).replace(/\s+/g,'');
+      }
+
       async function loadList(){
         try{
           const [resList, resOcr] = await Promise.all([
@@ -70,7 +74,13 @@
           const prepared = files.map(name=>{
             const title = name.replace(/\.pdf$/i,'');
             const o = ocrIndex[name] && ocrIndex[name].letra ? ocrIndex[name].letra : '';
-            return { name, title, searchText: sanitize(title) + ' ' + sanitize(o) };
+            const rawSearchText = `${title} ${o}`;
+            return {
+              name,
+              title,
+              searchText: sanitize(rawSearchText),
+              compactSearchText: compactSearchText(rawSearchText)
+            };
           });
 
           const render = list => {
@@ -107,14 +117,16 @@
           input.addEventListener('input', ()=>{
             const q = sanitize(input.value || '');
             if(!q) return render(prepared);
-            const filtered = prepared.filter(p => p.searchText.includes(q));
+            const compactQ = q.replace(/\s+/g,'');
+            const filtered = prepared.filter(p => p.searchText.includes(q) || p.compactSearchText.includes(compactQ));
             render(filtered);
           });
 
           input.addEventListener('keydown', (e)=>{
             if(e.key==='Enter'){
               const q = sanitize(input.value || '');
-              const first = prepared.find(p => p.searchText.includes(q));
+              const compactQ = q.replace(/\s+/g,'');
+              const first = prepared.find(p => p.searchText.includes(q) || p.compactSearchText.includes(compactQ));
               if(first) location.href = `../repertorio/${encodeURIComponent(first.name)}`;
             }
           });
