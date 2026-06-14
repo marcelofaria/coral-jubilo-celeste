@@ -7,6 +7,7 @@ const { execFileSync } = require('child_process');
 const repoDir = path.resolve(__dirname, '..', 'repertorio');
 const outFile = path.resolve(__dirname, '..', 'json', 'repertorio_ocr.json');
 const OCR_VERSION = 4;
+const CATEGORY_VERSION = 1;
 const OCR_DPI = Number(process.env.OCR_DPI || 300);
 const MIN_WORD_CONF = Number(process.env.OCR_MIN_CONF || 45);
 
@@ -21,6 +22,141 @@ function sanitize(text){
     .replace(/\s+/g,' ')
     .trim()
     .toLowerCase();
+}
+
+function normalizeForCategory(text){
+  if(!text) return '';
+  return text
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function escapeRegExp(text){
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function matchesTerm(haystack, term){
+  const normalized = normalizeForCategory(term);
+  if(!normalized) return false;
+  if(normalized.includes(' ')) return haystack.includes(normalized);
+  return new RegExp(`\\b${escapeRegExp(normalized)}\\b`).test(haystack);
+}
+
+function scoreTerms(haystack, terms){
+  return terms.reduce((score, item) => {
+    const term = typeof item === 'string' ? item : item.term;
+    const weight = typeof item === 'string' ? 1 : item.weight || 1;
+    return matchesTerm(haystack, term) ? score + weight : score;
+  }, 0);
+}
+
+const CATEGORY_RULES = [
+  {
+    id: 'santa-ceia',
+    minScore: 2,
+    terms: [
+      { term: 'santa ceia', weight: 3 },
+      { term: 'ceia', weight: 3 },
+      { term: 'vinho', weight: 2 },
+      { term: 'calice', weight: 2 },
+      { term: 'pao', weight: 2 },
+      { term: 'corpo', weight: 2 },
+      { term: 'sangue', weight: 2 },
+      { term: 'sanque', weight: 2 },
+      { term: 'cordeiro', weight: 2 },
+      { term: 'sacrificio', weight: 2 },
+      { term: 'via dolorosa', weight: 3 },
+      { term: 'crucificado', weight: 2 },
+      { term: 'crucificacao', weight: 2 },
+      'calvario',
+      'cruz',
+      'morte',
+      'morreu',
+      'sofreu',
+      'ferido',
+      'feridas',
+      'lenho',
+      'resgate',
+      'redencao'
+    ]
+  },
+  {
+    id: 'ceu',
+    minScore: 1,
+    terms: ['ceu', 'ceus', 'alturas', 'celeste', 'celestial', 'lar eterno', 'patria celestial']
+  },
+  {
+    id: 'cruz-calvario',
+    minScore: 1,
+    terms: ['cruz', 'calvario', 'golgota', 'lenho', 'crucificado', 'crucificacao']
+  },
+  {
+    id: 'oracao',
+    minScore: 1,
+    terms: ['oracao', 'orar', 'orando', 'orei', 'clamor', 'clamar', 'suplicas', 'suplica', 'intercede']
+  },
+  {
+    id: 'louvor-adoracao',
+    minScore: 1,
+    terms: ['louvor', 'louvores', 'adoracao', 'adorar', 'adorai', 'aleluia', 'gloria', 'exaltar', 'santo']
+  },
+  {
+    id: 'salvacao-graca',
+    minScore: 2,
+    terms: [
+      { term: 'salvacao', weight: 2 },
+      { term: 'salvador', weight: 2 },
+      { term: 'redentor', weight: 2 },
+      { term: 'remir', weight: 2 },
+      { term: 'remidos', weight: 2 },
+      { term: 'redencao', weight: 2 },
+      { term: 'resgate', weight: 2 },
+      'perdao',
+      'graca',
+      'pecado'
+    ]
+  },
+  {
+    id: 'paz-consolo',
+    minScore: 1,
+    terms: ['paz', 'consolo', 'consolacao', 'descanso', 'esperanca', 'seguranca', 'confianca', 'refugio']
+  },
+  {
+    id: 'salmos',
+    minScore: 1,
+    terms: ['salmo', 'salmos']
+  }
+];
+
+function classifyHymn(name, title, letra){
+  const categories = new Set();
+  const baseName = path.basename(name || '').replace(/\.pdf$/i, '');
+  const haystack = normalizeForCategory(`${name || ''} ${title || ''} ${letra || ''}`);
+
+  if(/\s*-\s*HC(?:\s+\d+)?$/i.test(baseName)) categories.add('harpa-crista');
+  if(/\s*-\s*Cifrado(?:s)?$/i.test(baseName)) categories.add('cifrados');
+
+  for(const rule of CATEGORY_RULES){
+    if(scoreTerms(haystack, rule.terms) >= rule.minScore) categories.add(rule.id);
+  }
+
+  return Array.from(categories);
+}
+
+function createOcrEntry(name, letra, mtime){
+  const title = path.basename(name).replace(/\.pdf$/i, '');
+  return {
+    name,
+    title,
+    letra,
+    categorias: classifyHymn(name, title, letra),
+    categoryVersion: CATEGORY_VERSION,
+    mtime,
+    ocrVersion: OCR_VERSION
+  };
 }
 
 function joinHyphenated(text){
@@ -236,6 +372,21 @@ try{
   }
   const prevIndex = prevIndexArr.reduce((m,e)=>{ m[e.name]=e; return m }, {});
 
+  if(process.env.OCR_RECLASSIFY_ONLY === '1'){
+    const resultArr = files.map(name => {
+      const cached = prevIndex[name] || {};
+      let mtime = typeof cached.mtime === 'number' ? cached.mtime : 0;
+      if(mtime === 0){
+        const full = path.join(repoDir, name);
+        try{ const stat = fs.statSync(full); mtime = stat.mtimeMs }catch(e){ mtime = 0 }
+      }
+      return createOcrEntry(name, cached.letra || '', mtime);
+    });
+    fs.writeFileSync(outFile, JSON.stringify(resultArr, null, 2), 'utf8');
+    console.log('Reclassified OCR index at', path.relative(process.cwd(), outFile));
+    process.exit(0);
+  }
+
   const resultArr = [];
 
   for(const name of files){
@@ -244,7 +395,11 @@ try{
     try{ const stat = fs.statSync(full); mtime = stat.mtimeMs }catch(e){ mtime = 0 }
 
     if(prevIndex[name] && prevIndex[name].mtime === mtime && prevIndex[name].ocrVersion === OCR_VERSION){
-      resultArr.push(prevIndex[name]);
+      const cached = prevIndex[name];
+      const entry = cached.categoryVersion === CATEGORY_VERSION && Array.isArray(cached.categorias)
+        ? cached
+        : createOcrEntry(name, cached.letra || '', mtime);
+      resultArr.push(entry);
       // write incremental progress so JSON stays up-to-date
       try{ fs.writeFileSync(outFile, JSON.stringify(resultArr, null, 2), 'utf8') }catch(e){}
       continue;
@@ -260,7 +415,7 @@ try{
     }catch(err){
       console.error('pdftoppm error (is poppler installed?):', err.message);
       // continue but add empty letra to avoid losing entry
-      resultArr.push({ name, title: path.basename(name, '.pdf'), letra: '', mtime, ocrVersion: OCR_VERSION });
+      resultArr.push(createOcrEntry(name, '', mtime));
       try{ fs.writeFileSync(outFile, JSON.stringify(resultArr, null, 2), 'utf8') }catch(e){}
       continue;
     }
@@ -287,7 +442,7 @@ try{
 
     const post = postProcess(rawText);
     const sanitized = sanitize(post);
-    resultArr.push({ name, title: path.basename(name, '.pdf'), letra: sanitized, mtime, ocrVersion: OCR_VERSION });
+    resultArr.push(createOcrEntry(name, sanitized, mtime));
     // write incremental progress after each processed document
     try{ fs.writeFileSync(outFile, JSON.stringify(resultArr, null, 2), 'utf8') }catch(e){}
   }

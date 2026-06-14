@@ -7,10 +7,30 @@
     <link rel="stylesheet" href="/css/index.css">
     <style>
       :root{--bg1:#0f1724;--bg2:#0b3b66;--accent:#ffd166;--muted:#98a0b3}
+      html{min-height:100%;background:linear-gradient(135deg,var(--bg1),var(--bg2))}
       body{font-family: 'Nunito', system-ui, sans-serif;margin:0;min-height:100vh;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#eef2f6;font-size:18px}
-      .wrap{max-width:1100px;margin:40px auto;padding:34px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));box-shadow:0 12px 40px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.04)}
-      h1{margin:0;font-size:34px;display:flex;align-items:center;gap:14px}
-      p.lead{color:var(--muted);margin:8px 0 20px;font-size:18px}
+      .site-layout{max-width:1380px;margin:40px auto;padding:0 18px;display:grid;grid-template-columns:240px minmax(0,1100px);gap:24px;align-items:start}
+      .site-layout.filters-collapsed{max-width:1136px;grid-template-columns:minmax(0,1100px)}
+      .site-layout.filters-collapsed .filter-panel{display:none}
+      .wrap{max-width:1100px;margin:0;padding:34px 76px 34px 34px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.06));box-shadow:0 12px 40px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.1);position:relative}
+      .filter-toggle{position:fixed;top:16px;left:16px;width:44px;height:44px;border:1px solid rgba(255,255,255,0.22);border-radius:8px;background:rgba(8,32,50,0.86);box-shadow:0 10px 28px rgba(0,0,0,0.25);display:flex;justify-content:center;align-items:center;z-index:20;cursor:pointer;color:var(--accent);font-size:26px;font-weight:900;line-height:1}
+      .filter-toggle .icon-close{display:none}
+      .filter-toggle.is-open .icon-menu{display:none}
+      .filter-toggle.is-open .icon-close{display:block}
+      .filter-panel{position:sticky;top:76px;padding:18px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.09));border:1px solid rgba(255,255,255,0.16);box-shadow:0 12px 34px rgba(2,6,23,0.42)}
+      .filter-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
+      .filter-head h2{margin:0;color:var(--accent);font-size:22px}
+      .filter-summary{color:var(--muted);font-size:13px;white-space:nowrap}
+      .filter-options{display:flex;flex-direction:column;gap:8px}
+      .filter-option{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.1);cursor:pointer}
+      .filter-option.is-disabled{opacity:.45;cursor:not-allowed}
+      .filter-option input{width:18px;height:18px;margin:0;accent-color:var(--accent);flex:0 0 auto}
+      .filter-label{flex:1;font-weight:700;font-size:15px}
+      .filter-count{color:var(--muted);font-size:13px}
+      .filter-clear{width:100%;margin-top:14px;padding:10px 12px;border:1px solid rgba(255,255,255,0.16);border-radius:8px;background:rgba(255,255,255,0.08);color:#eef2f6;font-weight:800;cursor:pointer}
+      .filter-clear:disabled{opacity:.45;cursor:not-allowed}
+      h1{margin:0;color:var(--accent);font-size:40px;text-align:center}
+      p.lead{color:var(--muted);margin:8px 0 20px;font-size:18px;text-align:center}
 
       /* Lista agrupada */
       .group{margin:18px 0}
@@ -19,24 +39,56 @@
       .divider{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));margin-left:12px}
 
       ul{list-style:none;padding:12px 0 0 0;margin:0}
-      li{padding:14px 18px;border-radius:10px;background:rgba(255,255,255,0.03);margin:10px 0;display:flex;align-items:center;justify-content:space-between;font-size:18px}
+      li{padding:14px 18px;border-radius:10px;background:rgba(255,255,255,0.18);margin:10px 0;display:flex;align-items:center;justify-content:space-between;font-size:18px}
       a.file{color:#ffd166;text-decoration:none;font-weight:700;font-size:18px}
       .meta{color:var(--muted);font-size:13px}
+      .alpha-slider{position:sticky;top:18px;float:right;margin-right:-56px;width:38px;height:min(760px,calc(100vh - 36px));padding:8px 0;border-radius:999px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.18);box-shadow:0 10px 28px rgba(0,0,0,0.25);display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:0;z-index:5;touch-action:none;user-select:none}
+      .alpha-slider:empty{display:none}
+      .alpha-key{width:30px;min-height:0;max-height:26px;flex:1 1 0;border:0;border-radius:999px;background:transparent;color:rgba(238,242,246,0.72);font-weight:800;font-size:14px;font-family:'Nunito',system-ui,sans-serif;line-height:1;cursor:pointer;transition:transform .18s ease,color .18s ease,background .18s ease,text-shadow .18s ease,opacity .18s ease}
+      .alpha-key.empty{color:rgba(238,242,246,0.32);opacity:.7}
+      .alpha-key.near{color:#fff;transform:scale(1.12)}
+      .alpha-key.active{background:var(--accent);color:#082032;transform:scale(1.45);text-shadow:none;box-shadow:0 6px 16px rgba(0,0,0,0.25)}
 
-      @media (max-width:700px){.wrap{padding:20px} .letter{min-width:40px;padding:6px 10px}}
+      @media (max-width:900px){
+        .site-layout{display:block;margin:72px auto 18px;padding:0 12px}
+        .site-layout.filters-collapsed .filter-panel{display:block;transform:translateX(calc(-100% - 28px));pointer-events:none}
+        .filter-panel{position:fixed;top:68px;bottom:16px;left:12px;width:min(300px,calc(100vw - 24px));box-sizing:border-box;overflow:auto;z-index:15;transition:transform .2s ease}
+        .wrap{max-width:none}
+      }
+      @media (max-width:700px){
+        .wrap{padding:20px 56px 20px 20px}
+        .letter{min-width:40px;padding:6px 10px}
+        .alpha-slider{margin-right:-44px;width:34px}
+        .alpha-key{width:26px;font-size:11px}
+      }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <h1>Repertório</h1>
-      <p class="lead">Lista dos hinos disponíveis no <strong>Repertório</strong>. Clique no nome para abrir o PDF.</p>
+    <button id="filterToggle" class="filter-toggle" type="button" aria-label="Mostrar ou ocultar filtros" aria-expanded="true">
+      <span class="icon-menu" aria-hidden="true">☰</span>
+      <span class="icon-close" aria-hidden="true">×</span>
+    </button>
+    <div id="siteLayout" class="site-layout">
+      <aside id="filterPanel" class="filter-panel">
+        <div class="filter-head">
+          <h2>Filtros</h2>
+          <span id="filterSummary" class="filter-summary">Todos</span>
+        </div>
+        <div id="filterOptions" class="filter-options"></div>
+        <button id="clearFilters" class="filter-clear" type="button" disabled>Limpar filtros</button>
+      </aside>
+      <div class="wrap">
+        <h1>Arquivo Digital Coral Júbilo Celeste</h1>
+        <p class="lead">Lista dos hinos disponíveis no repertório do coral. Clique no nome dos hinos para abrir os PDFs.</p>
 
-      <div style="margin-bottom:18px">
-        <input id="searchInput" type="search" placeholder="Buscar hinos (títulos e conteúdo dos PDFs)" style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:inherit;font-size:16px" />
-      </div>
+        <div style="margin-bottom:18px">
+          <input id="searchInput" type="search" placeholder="Buscar hinos (títulos e conteúdo dos PDFs)" style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.28);background:rgba(255,255,255,0.18);color:inherit;font-size:16px" />
+        </div>
 
-      <div id="listArea">
-        <p class="empty">Carregando lista…</p>
+        <nav id="alphaSlider" class="alpha-slider" aria-label="Navegação por letras"></nav>
+        <div id="listArea">
+          <p class="empty">Carregando lista…</p>
+        </div>
       </div>
     </div>
     <script>
@@ -54,7 +106,58 @@
         return sanitize(str).replace(/\s+/g,'');
       }
 
+      const FILTER_DEFS = [
+        { id: 'harpa-crista', label: 'Harpa Cristã' },
+        { id: 'cifrados', label: 'Cifrados' },
+        { id: 'santa-ceia', label: 'Santa Ceia' },
+        { id: 'ceu', label: 'Céu' },
+        { id: 'cruz-calvario', label: 'Cruz e Calvário' },
+        { id: 'oracao', label: 'Oração' },
+        { id: 'louvor-adoracao', label: 'Louvor e Adoração' },
+        { id: 'salvacao-graca', label: 'Salvação e Graça' },
+        { id: 'paz-consolo', label: 'Paz e Consolo' },
+        { id: 'salmos', label: 'Salmos' }
+      ];
+      const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+      function categoriesFromName(name, existingCategories){
+        const categories = new Set(Array.isArray(existingCategories) ? existingCategories : []);
+        const baseName = (name || '').replace(/\.pdf$/i, '');
+        if(/\s*-\s*HC(?:\s+\d+)?$/i.test(baseName)) categories.add('harpa-crista');
+        if(/\s*-\s*Cifrado(?:s)?$/i.test(baseName)) categories.add('cifrados');
+        return Array.from(categories);
+      }
+
       async function loadList(){
+          const area = document.getElementById('listArea');
+          const slider = document.getElementById('alphaSlider');
+        const layout = document.getElementById('siteLayout');
+        const filterToggle = document.getElementById('filterToggle');
+        const filterOptions = document.getElementById('filterOptions');
+        const filterSummary = document.getElementById('filterSummary');
+          const clearFilters = document.getElementById('clearFilters');
+          const input = document.getElementById('searchInput');
+          const activeFilters = new Set();
+          let currentKeys = [];
+          let availableKeys = [];
+          let isDraggingSlider = false;
+          let lastDragIndex = -1;
+          let dragTargetY = null;
+          let dragAnimationFrame = null;
+          let pointerStartY = 0;
+          let suppressNextSliderClick = false;
+
+        const setFiltersCollapsed = collapsed => {
+          layout.classList.toggle('filters-collapsed', collapsed);
+          filterToggle.classList.toggle('is-open', !collapsed);
+          filterToggle.setAttribute('aria-expanded', String(!collapsed));
+        };
+
+        setFiltersCollapsed(window.matchMedia('(max-width:900px)').matches);
+        filterToggle.addEventListener('click', () => {
+          setFiltersCollapsed(!layout.classList.contains('filters-collapsed'));
+        });
+
         try{
           const [resList, resOcr] = await Promise.all([
             fetch('../json/repertorio.json'),
@@ -65,7 +168,6 @@
           const ocrArr = resOcr && resOcr.ok ? await resOcr.json() : [];
           const ocrIndex = (Array.isArray(ocrArr) ? ocrArr.reduce((m,e)=>{ m[e.name]=e; return m }, {}) : {});
 
-          const area = document.getElementById('listArea');
           if(!Array.isArray(files) || files.length===0){
             area.innerHTML = '<p class="empty">Nenhum hino encontrado. Adicione arquivos PDF na pasta /repertorio/ e atualize list.json.</p>';
             return;
@@ -73,18 +175,227 @@
 
           const prepared = files.map(name=>{
             const title = name.replace(/\.pdf$/i,'');
-            const o = ocrIndex[name] && ocrIndex[name].letra ? ocrIndex[name].letra : '';
+            const ocr = ocrIndex[name] || {};
+            const o = ocr.letra ? ocr.letra : '';
             const rawSearchText = `${title} ${o}`;
             return {
               name,
               title,
+              categories: categoriesFromName(name, ocr.categorias || ocr.categories),
               searchText: sanitize(rawSearchText),
               compactSearchText: compactSearchText(rawSearchText)
             };
           });
 
+          const matchesSearch = item => {
+            const q = sanitize(input.value || '');
+            if(!q) return true;
+            const compactQ = q.replace(/\s+/g,'');
+            return item.searchText.includes(q) || item.compactSearchText.includes(compactQ);
+          };
+
+          const matchesFilters = item => {
+            if(activeFilters.size === 0) return true;
+            return item.categories.some(category => activeFilters.has(category));
+          };
+
+          const getFilteredList = () => prepared.filter(item => matchesSearch(item) && matchesFilters(item));
+
+          const updateFilterCounts = () => {
+            const searchMatches = prepared.filter(matchesSearch);
+            FILTER_DEFS.forEach(def => {
+              const count = searchMatches.filter(item => item.categories.includes(def.id)).length;
+              const countEl = filterOptions.querySelector(`[data-count-for="${def.id}"]`);
+              const checkbox = filterOptions.querySelector(`input[value="${def.id}"]`);
+              const option = checkbox && checkbox.closest('.filter-option');
+              if(countEl) countEl.textContent = count;
+              if(checkbox){
+                checkbox.disabled = count === 0 && !checkbox.checked;
+                if(option) option.classList.toggle('is-disabled', checkbox.disabled);
+              }
+            });
+            const totalActive = activeFilters.size;
+            filterSummary.textContent = totalActive === 0 ? 'Todos' : `${totalActive} ativo${totalActive > 1 ? 's' : ''}`;
+            clearFilters.disabled = totalActive === 0;
+          };
+
+          const renderFilterOptions = () => {
+            filterOptions.innerHTML = '';
+            FILTER_DEFS.forEach(def => {
+              const label = document.createElement('label');
+              label.className = 'filter-option';
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.value = def.id;
+              checkbox.addEventListener('change', () => {
+                if(checkbox.checked) activeFilters.add(def.id);
+                else activeFilters.delete(def.id);
+                applyFilters();
+              });
+              const labelText = document.createElement('span');
+              labelText.className = 'filter-label';
+              labelText.textContent = def.label;
+              const count = document.createElement('span');
+              count.className = 'filter-count';
+              count.dataset.countFor = def.id;
+              count.textContent = '0';
+              label.appendChild(checkbox);
+              label.appendChild(labelText);
+              label.appendChild(count);
+              filterOptions.appendChild(label);
+            });
+          };
+
+          // Slider now maps to 10 scroll points (0..9) across the full document height
+          let scrollPoints = [];
+          const updateScrollPoints = () => {
+            const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+            scrollPoints = Array.from({length:10}, (_,i) => Math.round(maxScroll * (i / 9)));
+          };
+
+          const setActiveLetter = activeIndex => {
+            slider.querySelectorAll('.alpha-key').forEach(btn => {
+              const idx = btn.dataset.index;
+              const ai = String(activeIndex);
+              btn.classList.toggle('active', idx === ai);
+              const diff = Math.abs(Number(idx) - Number(ai));
+              btn.classList.toggle('near', diff === 1);
+            });
+          };
+
+          const scrollYForLetter = index => {
+            updateScrollPoints();
+            const idx = Number(index);
+            if(!Number.isFinite(idx) || idx < 0 || idx > 9) return null;
+            return scrollPoints[idx];
+          };
+
+          const scrollToLetter = (index, behavior = 'smooth') => {
+            const targetY = scrollYForLetter(index);
+            if(targetY === null) return;
+            window.scrollTo({ top: targetY, behavior });
+            setActiveLetter(index);
+          };
+
+          const animateDragScroll = () => {
+            dragAnimationFrame = null;
+            if(dragTargetY === null) return;
+            const delta = dragTargetY - window.scrollY;
+            if(Math.abs(delta) < 1){
+              window.scrollTo({ top: dragTargetY, behavior: 'auto' });
+              return;
+            }
+            window.scrollTo({ top: window.scrollY + delta * 0.28, behavior: 'auto' });
+            dragAnimationFrame = requestAnimationFrame(animateDragScroll);
+          };
+
+          const scrollDragToLetter = index => {
+            const targetY = scrollYForLetter(index);
+            if(targetY === null) return;
+            dragTargetY = targetY;
+            setActiveLetter(index);
+            if(dragAnimationFrame === null) dragAnimationFrame = requestAnimationFrame(animateDragScroll);
+          };
+
+          const letterIndexFromPointer = clientY => {
+            const buttons = Array.from(slider.querySelectorAll('.alpha-key'));
+            if(buttons.length === 0) return -1;
+            let closestIndex = 0;
+            let closestDistance = Infinity;
+            buttons.forEach((btn, index) => {
+              const rect = btn.getBoundingClientRect();
+              const center = rect.top + rect.height / 2;
+              const distance = Math.abs(clientY - center);
+              if(distance < closestDistance){
+                closestDistance = distance;
+                closestIndex = index;
+              }
+            });
+            return closestIndex;
+          };
+
+          const moveSliderToPointer = clientY => {
+            const index = letterIndexFromPointer(clientY);
+            if(index === -1 || index === lastDragIndex) return;
+            lastDragIndex = index;
+            const letter = String(index);
+            if(letter) scrollDragToLetter(letter);
+          };
+
+          const updateActiveFromScroll = () => {
+            if(isDraggingSlider) return;
+            const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+            if(maxScroll === 0){ setActiveLetter('0'); return }
+            const ratio = window.scrollY / maxScroll;
+            const idx = Math.round(ratio * 9);
+            setActiveLetter(String(idx));
+          };
+
+          const updateAlphaSlider = () => {
+            slider.innerHTML = '';
+            currentKeys = Array.from({length:10}, (_,i) => String(i));
+            availableKeys = currentKeys.slice();
+            currentKeys.forEach(k => {
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.className = `alpha-key` + (availableKeys.includes(k) ? '' : ' empty');
+              btn.dataset.index = k;
+              btn.textContent = '•';
+              btn.setAttribute('aria-label', `Ponto ${String(Number(k) + 1)} de 10`);
+              btn.addEventListener('click', e => {
+                if(suppressNextSliderClick){
+                  e.preventDefault();
+                  suppressNextSliderClick = false;
+                  return;
+                }
+                scrollToLetter(k);
+              });
+              slider.appendChild(btn);
+            });
+            updateScrollPoints();
+            requestAnimationFrame(updateActiveFromScroll);
+          };
+
+          slider.addEventListener('pointerdown', e => {
+            isDraggingSlider = true;
+            lastDragIndex = -1;
+            pointerStartY = e.clientY;
+            suppressNextSliderClick = false;
+            slider.setPointerCapture(e.pointerId);
+            moveSliderToPointer(e.clientY);
+          });
+
+          // Ensure mouse wheel over the slider still scrolls the main page
+          slider.addEventListener('wheel', e => {
+            if(!e || Math.abs(e.deltaY) === 0) return;
+            e.preventDefault();
+            window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+          }, { passive: false });
+
+          slider.addEventListener('pointermove', e => {
+            if(!slider.hasPointerCapture(e.pointerId)) return;
+            if(Math.abs(e.clientY - pointerStartY) > 6) suppressNextSliderClick = true;
+            moveSliderToPointer(e.clientY);
+          });
+
+          slider.addEventListener('pointerup', e => {
+            if(slider.hasPointerCapture(e.pointerId)) slider.releasePointerCapture(e.pointerId);
+            isDraggingSlider = false;
+            lastDragIndex = -1;
+            requestAnimationFrame(updateActiveFromScroll);
+          });
+
+          slider.addEventListener('pointercancel', e => {
+            if(slider.hasPointerCapture(e.pointerId)) slider.releasePointerCapture(e.pointerId);
+            isDraggingSlider = false;
+            lastDragIndex = -1;
+            requestAnimationFrame(updateActiveFromScroll);
+          });
+
+          window.addEventListener('scroll', updateActiveFromScroll, { passive: true });
+
           const render = list => {
-            if(list.length===0){ area.innerHTML = '<p class="empty">Nenhum resultado.</p>'; return }
+            if(list.length===0){ area.innerHTML = '<p class="empty">Nenhum resultado.</p>'; updateAlphaSlider([]); return }
             area.innerHTML = '';
             const groups = {};
             list.forEach(item=>{
@@ -93,8 +404,9 @@
               groups[key] = groups[key]||[]; groups[key].push(item);
             });
             const keys = Object.keys(groups).sort((a,b)=>{ if(a==='#') return 1; if(b==='#') return -1; return a.localeCompare(b,'pt') });
+            updateAlphaSlider(keys);
             keys.forEach(k=>{
-              const grp = document.createElement('section'); grp.className='group';
+              const grp = document.createElement('section'); grp.className='group'; grp.dataset.letter = k;
               const head = document.createElement('div'); head.className='group-head';
               const letter = document.createElement('div'); letter.className='letter'; letter.textContent=k;
               const div = document.createElement('div'); div.className='divider'; head.appendChild(letter); head.appendChild(div); grp.appendChild(head);
@@ -111,22 +423,27 @@
             });
           };
 
-          render(prepared);
+          const applyFilters = () => {
+            render(getFilteredList());
+            updateFilterCounts();
+          };
 
-          const input = document.getElementById('searchInput');
+          renderFilterOptions();
+          applyFilters();
+
           input.addEventListener('input', ()=>{
-            const q = sanitize(input.value || '');
-            if(!q) return render(prepared);
-            const compactQ = q.replace(/\s+/g,'');
-            const filtered = prepared.filter(p => p.searchText.includes(q) || p.compactSearchText.includes(compactQ));
-            render(filtered);
+            applyFilters();
+          });
+
+          clearFilters.addEventListener('click', () => {
+            activeFilters.clear();
+            filterOptions.querySelectorAll('input[type="checkbox"]').forEach(checkbox => { checkbox.checked = false; });
+            applyFilters();
           });
 
           input.addEventListener('keydown', (e)=>{
             if(e.key==='Enter'){
-              const q = sanitize(input.value || '');
-              const compactQ = q.replace(/\s+/g,'');
-              const first = prepared.find(p => p.searchText.includes(q) || p.compactSearchText.includes(compactQ));
+              const first = getFilteredList()[0];
               if(first) location.href = `../repertorio/${encodeURIComponent(first.name)}`;
             }
           });
