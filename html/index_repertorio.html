@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Repertório — Coral Júbilo Celeste</title>
+    <link rel="icon" type="image/png" href="../assets/favicon-coral.png">
     <link rel="stylesheet" href="/css/index.css">
     <style>
       :root{--bg1:#0f1724;--bg2:#0b3b66;--accent:#ffd166;--muted:#98a0b3}
@@ -29,6 +30,7 @@
       .filter-count{color:var(--muted);font-size:13px}
       .filter-clear{width:100%;margin-top:14px;padding:10px 12px;border:1px solid rgba(255,255,255,0.16);border-radius:8px;background:rgba(255,255,255,0.08);color:#eef2f6;font-weight:800;cursor:pointer}
       .filter-clear:disabled{opacity:.45;cursor:not-allowed}
+      .repertorio-hero{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;margin:0 0 24px;border:1px solid rgba(255,255,255,0.14);box-shadow:0 14px 34px rgba(2,6,23,0.38)}
       h1{margin:0;color:var(--accent);font-size:40px;text-align:center}
       p.lead{color:var(--muted);margin:8px 0 20px;font-size:18px;text-align:center}
 
@@ -63,6 +65,8 @@
       }
       @media (max-width:700px){
         .wrap{padding:20px 20px 20px 20px}
+        .repertorio-hero{border-radius:8px;margin-bottom:18px}
+        h1{font-size:30px}
         .letter{min-width:40px;padding:6px 10px}
         .alpha-slider{margin-right:-44px;width:34px}
         .alpha-key{width:26px;font-size:11px}
@@ -84,6 +88,7 @@
         <button id="clearFilters" class="filter-clear" type="button" disabled>Limpar filtros</button>
       </aside>
       <div class="wrap">
+        <img class="repertorio-hero" src="../assets/repertorio-digital-coral.png" alt="Arquivo digital de partituras do Coral Jubilo Celeste">
         <h1>Arquivo Digital Coral Júbilo Celeste</h1>
         <p class="lead">Lista dos hinos disponíveis no repertório do coral. Clique no nome dos hinos para abrir os PDFs.</p>
 
