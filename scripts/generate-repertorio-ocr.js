@@ -161,6 +161,10 @@ function createOcrEntry(name, letra, mtime){
   };
 }
 
+function canReuseCachedEntry(entry){
+  return entry && entry.ocrVersion === OCR_VERSION && process.env.OCR_FORCE_REFRESH !== '1';
+}
+
 function joinHyphenated(text){
   if(!text) return '';
   return text
@@ -396,7 +400,7 @@ try{
     let mtime = 0;
     try{ const stat = fs.statSync(full); mtime = stat.mtimeMs }catch(e){ mtime = 0 }
 
-    if(prevIndex[name] && prevIndex[name].mtime === mtime && prevIndex[name].ocrVersion === OCR_VERSION){
+    if(canReuseCachedEntry(prevIndex[name])){
       const cached = prevIndex[name];
       const entry = cached.categoryVersion === CATEGORY_VERSION && Array.isArray(cached.categorias)
         ? cached
