@@ -1,3 +1,5 @@
+//npm run dev
+//http://localhost:5173/
 //npm run generate-repertorio
 const fs = require('fs');
 const path = require('path');
