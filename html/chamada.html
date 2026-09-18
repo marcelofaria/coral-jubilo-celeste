@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#123b3a">
+        <title>Chamada do coral</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="../css/chamada.css">
+    </head>
+    <body>
+        <main class="app-shell">
+            <header class="topbar">
+                <a class="back-link" href="index_secretaria.html" aria-label="Voltar para a secretaria">← secretaria</a>
+                <span class="status-dot" aria-hidden="true"></span>
+                <span>Coral Júbilo Celeste</span>
+            </header>
+            <nav class="page-tabs" aria-label="Secretaria">
+                <a class="active" href="chamada.html">Chamada</a>
+                <a href="relatorios.html">Relatórios</a>
+            </nav>
+            <section class="intro" aria-labelledby="page-title">
+                <div>
+                    <p class="eyebrow">presença · chamada</p>
+                    <h1 id="page-title"><em>Chamada</em> Júbilo Celeste</h1>
+                    <p class="intro-copy">Registre cada ensaio no dia em que ele acontece. Ao terminar, salve tudo diretamente no repositório.</p>
+                </div>
+                <div class="intro-mark" aria-hidden="true">♫</div>
+            </section>
+            <section class="toolbar" aria-label="Controle da chamada">
+                <label class="date-field" for="attendance-date"><span>Data da chamada</span><input id="attendance-date" type="date"></label>
+                <div class="toolbar-actions"><button class="button button-primary" id="new-attendance" type="button">+ nova chamada</button><button class="button button-quiet" id="save-csv" type="button">salvar no GitHub</button><button class="button button-quiet" id="configure-github" type="button">configurar GitHub</button><button class="button button-quiet" id="export-data" type="button">backup JSON</button><label class="button button-quiet file-button" for="import-data">importar<input id="import-data" type="file" accept="application/json"></label></div>
+            </section>
+            <section class="summary" aria-label="Resumo da chamada"><div><strong id="member-count">0</strong><span>membros</span></div><div><strong id="present-count">0</strong><span>presentes</span></div><div><strong id="absent-count">0</strong><span>ausências</span></div><p id="save-status">salvo automaticamente</p></section>
+            <section class="members-section" aria-labelledby="members-title">
+                <div class="section-heading"><div><p class="eyebrow">lista do coral</p><h2 id="members-title">Marque a presença</h2></div><input class="search-input" id="member-search" type="search" placeholder="Buscar membro" aria-label="Buscar membro"></div>
+                <div class="legend" aria-label="Legenda dos botões"><span><b class="legend-present">P</b> presente</span><span><b class="legend-absent">A</b> ausente</span><span>toque novamente para corrigir</span></div>
+                <div class="table-wrap"><table><thead><tr><th scope="col">Membro</th><th scope="col">Chamada</th><th scope="col">Balanço</th><th scope="col"><span class="sr-only">Ações</span></th></tr></thead><tbody id="members-list"></tbody></table><p class="empty-state" id="empty-state" hidden>Nenhum membro encontrado.</p></div>
+            </section>
+            <section class="manage-section" aria-labelledby="manage-title"><div><p class="eyebrow">cadastro</p><h2 id="manage-title">Membros do coral</h2><p>Inclua quem chegou e remova quem não participa mais. A lista sempre volta para a ordem alfabética.</p></div><form class="add-member" id="add-member-form"><label class="sr-only" for="new-member">Nome do novo membro</label><input id="new-member" type="text" placeholder="Nome completo" required><button class="button button-primary" type="submit">adicionar</button></form></section>
+            <section class="history-section" aria-labelledby="history-title"><div class="section-heading"><div><p class="eyebrow">arquivo</p><h2 id="history-title">Chamadas registradas</h2></div><span class="history-hint">selecione uma data para corrigir</span></div><div class="history-list" id="history-list"></div></section>
+            <footer>o botão salvar cria um commit no repositório configurado</footer>
+        </main>
+        <script type="module" src="../js/chamada.js"></script>
+    </body>
+</html>

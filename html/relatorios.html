@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#123b3a">
+        <title>Relatórios do coral</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="../css/relatorios.css">
+    </head>
+    <body>
+        <main class="app-shell">
+            <header class="topbar"><a class="back-link" href="index_secretaria.html">← secretaria</a><span class="status-dot"></span><span>Coral Júbilo Celeste</span></header>
+            <nav class="page-tabs" aria-label="Secretaria">
+                <a href="chamada.html">Chamada</a>
+                <a class="active" href="relatorios.html">Relatórios</a>
+            </nav>
+            <section class="intro"><div><p class="eyebrow">arquivo · ensaios e cultos</p><h1><em>Relatórios</em><br>do coral</h1><p class="intro-copy">Uma memória simples dos hinos, das pessoas e de cada encontro do coral.</p></div><div class="intro-mark" aria-hidden="true">♫</div></section>
+            <section class="toolbar" aria-label="Ações dos relatórios"><button class="button button-primary" id="new-report" type="button">+ novo relatório</button><button class="button button-quiet" id="save-reports" type="button">salvar no GitHub</button><button class="button button-quiet" id="configure-github" type="button">configurar GitHub</button><button class="button button-quiet" id="export-reports" type="button">backup CSV</button></section>
+            <p class="save-status" id="save-status">histórico carregado do repositório</p>
+
+            <section class="editor-section" id="editor-section" aria-labelledby="editor-title">
+                <div class="section-heading"><div><p class="eyebrow">cadastro</p><h2 id="editor-title">Novo relatório</h2></div><button class="close-button" id="cancel-edit" type="button" aria-label="Cancelar edição">×</button></div>
+                <form id="report-form" class="report-form">
+                    <input id="report-id" type="hidden">
+                    <label>Data<input id="report-date" type="date" required></label>
+                    <label>Atividade<select id="report-activity"><option>Ensaio</option><option>Culto</option></select></label>
+                    <label class="wide">Hinos<input id="hymns" type="text" placeholder="Ex.: Pai Nosso · O lar ditoso"></label>
+                    <label>Quem regeu<input id="conductors" type="text" placeholder="Ex.: Marcelo e André"></label>
+                    <label>Quem tocou<input id="musicians" type="text" placeholder="Ex.: Jeferson e Gustavo"></label>
+                    <label>Oferta recolhida<input id="offer" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"></label>
+                    <label class="wide">Observações<textarea id="notes" rows="3" placeholder="Cancelamentos, avisos ou detalhes do encontro"></textarea></label>
+                    <div class="form-actions"><button class="button button-primary" type="submit">salvar relatório</button><button class="button button-quiet" id="clear-form" type="button">limpar</button></div>
+                </form>
+            </section>
+
+            <section class="reports-section" aria-labelledby="reports-title"><div class="section-heading"><div><p class="eyebrow">histórico</p><h2 id="reports-title">Encontros registrados</h2></div><div class="filters"><select id="year-filter" aria-label="Filtrar por ano"><option value="all">todos os anos</option></select><select id="activity-filter" aria-label="Filtrar por atividade"><option value="all">todas as atividades</option><option>Ensaio</option><option>Culto</option></select></div></div><div class="report-list" id="report-list"></div><p class="empty-state" id="empty-state" hidden>Nenhum relatório encontrado.</p></section>
+            <footer>o botão salvar cria um commit no arquivo de relatórios</footer>
+        </main>
+        <script type="module" src="../js/relatorios.js"></script>
+    </body>
+</html>
