@@ -1,22 +1,18 @@
-const STORAGE_KEY = 'coral-jubilo-chamada-v1'
 const GITHUB_TOKEN_KEY = 'coral-jubilo-github-token'
 const GITHUB_OWNER = 'marcelofaria'
 const GITHUB_REPOSITORY = 'coral-jubilo-celeste'
 const GITHUB_BRANCH = 'main'
 const GITHUB_FILE = 'dados/chamadas.csv'
+const GITHUB_RAW_FILE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/${GITHUB_BRANCH}/${GITHUB_FILE}`
+localStorage.removeItem('coral-jubilo-chamada-v1')
 const initialMembers = ['Alexsandra Mariano da Fonseca', 'Alice Kelly de Oliveira', 'Analice de Souza Oliveira', 'André Tulio da Silva', 'Carlos Antônio Natal Bueno Filho', 'Carlos Roberto Silverio de Almeida', 'Carol Paes de Camargo Oliveira', 'Devanir Nonato Lemos Vieira', 'Eliane Macedo Turquetti André', 'Elizeu Pisano Cabral', 'Fabiane Gomes Belarmino', 'Gustavo Ramos de Oliveira', 'Ismael Ramos Sousa Santos', 'Ivone Barbosa de Souza', 'Jair Inácio de Souza', 'Jayme Nunes de Oliveira Júnior', 'Jeferson Nunes de Oliveira', 'Joaquim Eduardo de França', 'José Dorival Silvério de Almeida', 'José Francisco Belarmino Júnior', 'Késya Gomes Belarmino', 'Laura Beatriz Francisco', 'Lindinalva Mariano da Fonseca', 'Lucas Paulino de Siqueira', 'Luciana Alves de França', 'Luciana Cristina Messias Bueno', 'Maeli Gonçalves Alves', 'Marcelo Augusto Stefanini Faria', 'Marco Antonio Araújo André', 'Maria de Souza Oliveira', 'Maria Núbia Ramos dos Santos Almeida', 'Natã Lopes Silva', 'Natalina da Silva de Oliveira', 'Nicoli Victória de França Rocha', 'Oriel Francisco Fortunato', 'Otávio Ramos de Oliveira', 'Pietra Sousa Santos', 'Raiane França de Sousa', 'Rosilene Maria de França de Souza', 'Severino Gomes dos Santos', 'Silvana Celestino dos Santos Luiz', 'Simone Ramos Santos de Oliveira', 'Sulamita Mota de Almeida', 'Talita Celestino dos Santos Luiz']
 const today = () => new Date().toISOString().slice(0, 10)
 const sortMembers = members => [...members].sort((a, b) => a.localeCompare(b, 'pt-BR'))
-const makeState = () => ({ members: sortMembers(initialMembers), attendances: {}, activeDate: today() })
-let storedState = null
-try { storedState = JSON.parse(localStorage.getItem(STORAGE_KEY)) } catch { storedState = null }
-let state = storedState || makeState()
-state.members = sortMembers(state.members || initialMembers); state.attendances ||= {}; state.activeDate ||= today()
+let state = { members: [], attendances: {}, activeDate: today() }
 const $ = selector => document.querySelector(selector)
 const dateInput = $('#attendance-date')
 const save = message => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-    $('#save-status').textContent = message || 'alterações salvas neste dispositivo'
+    $('#save-status').textContent = message || 'alterações pendentes · salve no GitHub'
 }
 const attendance = () => state.attendances[state.activeDate] || {}
 const formatDate = value => new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' }).format(new Date(`${value}T12:00:00`))
@@ -33,7 +29,7 @@ function ensureAttendance() { state.attendances[state.activeDate] ||= {} }
 dateInput.addEventListener('change', event => { state.activeDate = event.target.value || today(); ensureAttendance(); save(); render() })
 $('#member-search').addEventListener('input', render)
 $('#members-list').addEventListener('click', event => { const mark = event.target.closest('.mark'); if (mark) { ensureAttendance(); const member = mark.dataset.member; const status = mark.dataset.status; attendance()[member] = attendance()[member] === status ? undefined : status; if (!attendance()[member]) delete attendance()[member]; save(); render(); return } const remove = event.target.closest('[data-remove]'); if (remove && window.confirm(`Remover ${remove.dataset.remove} da lista?`)) { state.members = state.members.filter(member => member !== remove.dataset.remove); Object.values(state.attendances).forEach(call => delete call[remove.dataset.remove]); save('membro removido'); render() } })
-$('#history-list').addEventListener('click', event => { const deleteButton = event.target.closest('[data-delete-date]'); if (deleteButton) { const date = deleteButton.dataset.deleteDate; if (window.confirm(`Excluir a chamada de ${formatDate(date)}? Esta ação não pode ser desfeita antes de salvar no GitHub.`)) { delete state.attendances[date]; state.activeDate = today(); save('chamada excluída neste dispositivo'); render() } return } const item = event.target.closest('[data-date]'); if (item) { state.activeDate = item.dataset.date; save(); render() } })
+$('#history-list').addEventListener('click', event => { const deleteButton = event.target.closest('[data-delete-date]'); if (deleteButton) { const date = deleteButton.dataset.deleteDate; if (window.confirm(`Excluir a chamada de ${formatDate(date)}? Esta ação não pode ser desfeita antes de salvar no GitHub.`)) { delete state.attendances[date]; state.activeDate = today(); save('chamada excluída · salve no GitHub'); render() } return } const item = event.target.closest('[data-date]'); if (item) { state.activeDate = item.dataset.date; save(); render() } })
 $('#add-member-form').addEventListener('submit', event => { event.preventDefault(); const input = $('#new-member'); const name = input.value.trim(); if (!name || state.members.some(member => member.toLocaleLowerCase('pt-BR') === name.toLocaleLowerCase('pt-BR'))) return; state.members = sortMembers([...state.members, name]); input.value = ''; save('membro adicionado'); render() })
 function csvValue(value) { return `"${String(value).replace(/"/g, '""')}"` }
 function buildCsv() {
@@ -44,10 +40,9 @@ function buildCsv() {
 }
 function parseCsvLine(line) { return line.match(/(?:^|;)("(?:[^"]|"")*"|[^;]*)/g).map(value => value.replace(/^;/, '').replace(/^"|"$/g, '').replace(/""/g, '"')) }
 async function loadRepositoryCsv() {
-    if (storedState) return
     try {
-        const response = await fetch('../dados/chamadas.csv', { cache: 'no-store' })
-        if (!response.ok) return
+        const response = await fetch(GITHUB_RAW_FILE, { cache: 'no-store' })
+        if (!response.ok) throw new Error(`GitHub respondeu com ${response.status}`)
         const lines = (await response.text()).trim().split(/\r?\n/).slice(1).filter(Boolean)
         const importedMembers = []
         const importedAttendances = {}
@@ -59,8 +54,12 @@ async function loadRepositoryCsv() {
         if (importedMembers.length) state.members = sortMembers(importedMembers)
         state.attendances = importedAttendances
         ensureAttendance()
+        $('#save-status').textContent = 'histórico carregado do GitHub'
         render()
-    } catch (error) { console.warn('Não foi possível carregar o CSV do repositório:', error) }
+    } catch (error) {
+        $('#save-status').textContent = 'não foi possível carregar o histórico do GitHub'
+        console.warn('Não foi possível carregar o CSV do GitHub:', error)
+    }
 }
 let githubToken = localStorage.getItem(GITHUB_TOKEN_KEY)
 const configureGithub = () => {
