@@ -25,6 +25,7 @@ let isLoading = false
 let isSaving = false
 let isReady = false
 let hasUnsavedChanges = false
+let editingMember = null
 
 function setStatus(message) {
     $('#save-status').textContent = message
@@ -52,7 +53,7 @@ function updateControls() {
     $('#configure-github').disabled = busy
     dateInput.disabled = busy || !isReady
     $('#new-member').disabled = busy || !isReady
-    $('#add-member-form button').disabled = busy || !isReady
+    $('#add-member-form').querySelectorAll('button').forEach(button => { button.disabled = busy || !isReady })
     $('#configure-github').textContent = githubToken ? 'remover configuração' : 'configurar GitHub'
     document.body.toggleAttribute('data-github-busy', busy)
 }
@@ -72,7 +73,7 @@ function render() {
     $('#members-list').innerHTML = visibleMembers.map(member => {
         const status = current[member]
         const balance = balanceFor(member)
-        return `<tr><td data-label="Membro">${escapeHtml(member)}</td><td data-label="Chamada"><div class="attendance-buttons"><button class="mark ${status === 'present' ? 'selected' : ''}" data-member="${escapeHtml(member)}" data-status="present" aria-label="Marcar ${escapeHtml(member)} como presente">P</button><button class="mark absent ${status === 'absent' ? 'selected' : ''}" data-member="${escapeHtml(member)}" data-status="absent" aria-label="Marcar ${escapeHtml(member)} como ausente">A</button></div></td><td data-label="Balanço"><span class="balance ${balance.percentage === null ? 'empty' : ''}">${balance.percentage === null ? '—' : `${balance.percentage}%`}</span></td><td data-label="Ações"><button class="remove-member" data-remove="${escapeHtml(member)}" aria-label="Remover ${escapeHtml(member)}">×</button></td></tr>`
+        return `<tr><td data-label="Membro">${escapeHtml(member)}</td><td data-label="Chamada"><div class="attendance-buttons"><button class="mark ${status === 'present' ? 'selected' : ''}" data-member="${escapeHtml(member)}" data-status="present" aria-label="Marcar ${escapeHtml(member)} como presente">P</button><button class="mark absent ${status === 'absent' ? 'selected' : ''}" data-member="${escapeHtml(member)}" data-status="absent" aria-label="Marcar ${escapeHtml(member)} como ausente">A</button></div></td><td data-label="Balanço"><span class="balance ${balance.percentage === null ? 'empty' : ''}">${balance.percentage === null ? '—' : `${balance.percentage}%`}</span></td><td data-label="Ações"><div class="member-actions"><button class="edit-member" data-edit-member="${escapeHtml(member)}" aria-label="Editar nome de ${escapeHtml(member)}">✎</button><button class="remove-member" data-remove="${escapeHtml(member)}" aria-label="Remover ${escapeHtml(member)}">×</button></div></td></tr>`
     }).join('')
     $('#empty-state').hidden = visibleMembers.length > 0
     const records = Object.values(current)
@@ -256,6 +257,36 @@ function removeMemberFromData(data, member) {
     Object.values(data.attendances).forEach(call => delete call[member])
 }
 
+function resetMemberEditor() {
+    editingMember = null
+    $('#manage-title').textContent = 'Membros do coral'
+    $('#new-member').value = ''
+    $('#new-member').placeholder = 'Nome completo'
+    $('#member-form-submit').textContent = 'adicionar'
+    $('#cancel-member-edit').hidden = true
+}
+
+function editMember(member) {
+    if (isLoading || isSaving || !state.members.includes(member)) return
+    editingMember = member
+    $('#manage-title').textContent = 'Editar membro'
+    $('#new-member').value = member
+    $('#new-member').placeholder = 'Nome completo'
+    $('#member-form-submit').textContent = 'salvar nome'
+    $('#cancel-member-edit').hidden = false
+    $('.manage-section').scrollIntoView({ behavior: 'smooth', block: 'center' })
+    $('#new-member').focus()
+}
+
+function renameMember(previousName, nextName) {
+    state.members = sortMembers(state.members.map(member => member === previousName ? nextName : member))
+    Object.values(state.attendances).forEach(call => {
+        if (!call[previousName]) return
+        call[nextName] = call[previousName]
+        delete call[previousName]
+    })
+}
+
 function mergeChanges(base, local, remote) {
     const localMembers = memberChanges(base, local)
     const remoteMembers = memberChanges(base, remote)
@@ -268,11 +299,12 @@ function mergeChanges(base, local, remote) {
     })
 
     const localAttendance = attendanceChanges(base, local)
+    const localAddedMembers = new Set(localMembers.filter(change => change.after).map(change => change.member))
     const remoteAttendanceMap = new Map(attendanceChanges(base, remote).map(change => [`${change.date}\u0000${change.member}`, change]))
     localAttendance.forEach(change => {
         const remoteChange = remoteAttendanceMap.get(`${change.date}\u0000${change.member}`)
         if (remoteChange && remoteChange.after !== change.after) conflicts.push(`${formatDate(change.date)} · ${change.member}`)
-        if (!remote.members.includes(change.member)) conflicts.push(`${formatDate(change.date)} · ${change.member} (membro removido)`)
+        if (!remote.members.includes(change.member) && !localAddedMembers.has(change.member)) conflicts.push(`${formatDate(change.date)} · ${change.member} (membro removido)`)
     })
 
     if (conflicts.length) return { conflicts: [...new Set(conflicts)] }
@@ -379,9 +411,15 @@ $('#members-list').addEventListener('click', event => {
         render()
         return
     }
+    const edit = event.target.closest('[data-edit-member]')
+    if (edit) {
+        editMember(edit.dataset.editMember)
+        return
+    }
     const remove = event.target.closest('[data-remove]')
     if (remove && window.confirm(`Remover ${remove.dataset.remove} da lista e de todas as chamadas?`)) {
         removeMemberFromData(state, remove.dataset.remove)
+        if (editingMember === remove.dataset.remove) resetMemberEditor()
         markDirty('membro removido · salve no GitHub')
         render()
     }
@@ -412,12 +450,33 @@ $('#add-member-form').addEventListener('submit', event => {
     if (isLoading || isSaving) return
     const input = $('#new-member')
     const name = input.value.trim()
-    if (!name || state.members.some(member => member.toLocaleLowerCase('pt-BR') === name.toLocaleLowerCase('pt-BR'))) return
-    state.members = sortMembers([...state.members, name])
-    input.value = ''
-    markDirty('membro adicionado · salve no GitHub')
+    if (!name) return
+    const sameName = member => member.toLocaleLowerCase('pt-BR') === name.toLocaleLowerCase('pt-BR')
+    if (editingMember) {
+        if (name !== editingMember && state.members.some(member => member !== editingMember && sameName(member))) {
+            setStatus('já existe um membro com este nome')
+            return
+        }
+        if (name === editingMember) {
+            resetMemberEditor()
+            return
+        }
+        renameMember(editingMember, name)
+        resetMemberEditor()
+        markDirty('nome do membro atualizado · salve no GitHub')
+    } else {
+        if (state.members.some(sameName)) {
+            setStatus('já existe um membro com este nome')
+            return
+        }
+        state.members = sortMembers([...state.members, name])
+        input.value = ''
+        markDirty('membro adicionado · salve no GitHub')
+    }
     render()
 })
+
+$('#cancel-member-edit').addEventListener('click', resetMemberEditor)
 
 $('#configure-github').addEventListener('click', () => {
     if (githubToken && window.confirm('Remover o token salvo somente neste navegador?')) {
